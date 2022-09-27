@@ -1,0 +1,116 @@
+@font-face {
+  font-family: 'icomoon';
+  src:  url('../fonts/icomoon/icomoon-s0ye2g.eot');
+  src:  url('../fonts/icomoon/icomoon-s0ye2g.eot#iefix') format('embedded-opentype'),
+  url('../fonts/icomoon/icomoon-s0ye2g.ttf') format('truetype'),
+  url('../fonts/icomoon/icomoon-s0ye2g.woff') format('woff'),
+  url('../fonts/icomoon/icomoon-s0ye2g.svg#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="ico-"], [class*=" ico-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  display: flex;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.ico-icon_aquarius:before {
+  content: "\e912";
+}
+.ico-icon_cancer:before {
+  content: "\e913";
+}
+.ico-icon_capricornius:before {
+  content: "\e914";
+}
+.ico-icon_gemini:before {
+  content: "\e915";
+}
+.ico-icon_leo:before {
+  content: "\e916";
+}
+.ico-icon_libra:before {
+  content: "\e917";
+}
+.ico-icon_pisces:before {
+  content: "\e918";
+}
+.ico-icon_sagittarius:before {
+  content: "\e919";
+}
+.ico-icon_scorpio:before {
+  content: "\e91a";
+}
+.ico-icon_taurus:before {
+  content: "\e91b";
+}
+.ico-icon_virgo:before {
+  content: "\e91c";
+}
+.ico-icon_aries:before {
+  content: "\e91d";
+}
+.ico-email:before {
+  content: "\e900";
+}
+.ico-hours:before {
+  content: "\e901";
+}
+.ico-clock:before {
+  content: "\e902";
+}
+.ico-pin:before {
+  content: "\e903";
+}
+.ico-crystal-ball-1:before {
+  content: "\e904";
+}
+.ico-diamond:before {
+  content: "\e905";
+}
+.ico-gem:before {
+  content: "\e906";
+}
+.ico-gem-1:before {
+  content: "\e907";
+}
+.ico-gems:before {
+  content: "\e908";
+}
+.ico-magic:before {
+  content: "\e909";
+}
+.ico-magic-1:before {
+  content: "\e90a";
+}
+.ico-magic-lamp:before {
+  content: "\e90b";
+}
+.ico-message-on-phone:before {
+  content: "\e90c";
+}
+.ico-moon:before {
+  content: "\e90d";
+}
+.ico-right-arrow:before {
+  content: "\e90e";
+}
+.ico-search:before {
+  content: "\e90f";
+}
+.ico-tarot:before {
+  content: "\e910";
+}
+.ico-tarot-1:before {
+  content: "\e911";
+}

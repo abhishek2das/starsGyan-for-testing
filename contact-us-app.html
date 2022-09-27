@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Starsgyan || Policy</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+		integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<style>
+		body {
+			font-family: 'Poppins';
+			font-size: 22px;
+		}
+
+		li {
+			margin-bottom: 30px;
+		}
+
+		.blockquote-footer {
+			font-size: 12px !important;
+		}
+
+		label {
+			font-size: 19px !important;
+			color: #6a172c;
+		}
+
+		small {
+			font-size: 11px !important;
+		}
+
+		.fa-star {
+			color: #6a172c;
+		}
+
+
+		h1,
+		h2,
+		h3,
+		h4 {
+			border-bottom: 8px solid #6a172c;
+			/*border-top:1px solid #6a172c;*/
+			border-radius: 20px;
+			text-align: center;
+			padding: 10px;
+		}
+
+		.btn {
+			background-color: #6a172c;
+			border: 1px solid #6a172c;
+			border-radius: 50px;
+		}
+
+		.form-control {
+			border-radius: 50px;
+			color: #6a172c;
+		}
+
+		input,
+		select,
+		textarea {
+			color: #6a172c !important;
+		}
+
+		.swal-button {
+			background-color: #6a172c;
+			color: #fff;
+			border: none;
+			box-shadow: none;
+			border-radius: 50px;
+			font-weight: 600;
+			font-size: 14px;
+			padding: 10px 24px;
+			margin: 0;
+			cursor: pointer;
+		}
+		
+		.btn-primary:hover {
+			color: #fff;
+			background-color: #ac3754;
+			border-color: #ac3754;
+		}
+		
+		.btn-primary:not(:disabled):not(.disabled).active, .btn-primary:not(:disabled):not(.disabled):active, .show>.btn-primary.dropdown-toggle {
+			color: #fff;
+			background-color: #ac3754;
+			border-color: #ac3754;
+		}
+		
+			.btn-primary.focus, .btn-primary:focus {
+			box-shadow: 0 0 0 0.2rem#e48099;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="container mt-5">
+		<div class="text-center mb-3">
+			<img src="http://www.praxivlabs.in/StarsGyan/starsgyan_logo.svg" alt="" class="img-fluid">
+		</div>
+		<hr>
+		<div class="section-1">
+			<h2>CONTACT US</h2>
+
+			<div class="form-group mt-5">
+				<label for="exampleInputEmail1">Name</label>
+				<input type="email" class="form-control" id="name" aria-describedby="emailHelp"
+					placeholder="Enter your name">
+
+			</div>
+			<div class="form-group">
+				<label for="exampleInputPassword1">Email address</label>
+				<input type="email" class="form-control" id="email" placeholder="Email address">
+				<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone
+					else.</small>
+			</div>
+
+			<div class="form-group">
+				<label for="exampleInputPassword1">Message</label>
+				<textarea rows="5" class="form-control" id="message" placeholder="Enter your message"
+					style="border-radius:10px"></textarea>
+			</div>
+
+			<button type="button" class="btn btn-primary btn-lg w-100 mt-2" id="submit_botton" onclick="onSubmit()">Send</button>
+			<div class="text-center loading d-none"  id="loader">
+				<img class="img-fluid w-25" src="https://createwebsite.net/wp-content/uploads/2015/09/Display-Loading.gif">
+			</div>
+			
+			
+		</div>
+
+
+	</div>
+	<br><br>
+	<script>
+		function onSubmit() {
+			const name = document.getElementById("name").value;
+			const email = document.getElementById("email").value;
+			const message = document.getElementById("message").value;
+			const loader = document.getElementById('loader').classList;
+			if (name.trim() == '') {
+				swal("Invalid Form!", "Please enter your name", "error");
+				return false;
+			} else if (email.trim() == '') {
+				swal("Invalid Form!", "Please enter your email", "error");
+				return false;
+			} else if (message.trim() == '') {
+				swal("Invalid Form!", "Please enter your message", "error");
+				return false;
+			}
+			
+			loader.remove('d-none');
+			$('#submit_botton').prop('disabled', true);
+			$.post("https://api.starsgyan.com/StarsGyanAPI/api/user/contactus", {
+					name: name,
+					email: email,
+					message: message
+				},
+				function (data, status) {
+					$('#submit_botton').prop('disabled', false);
+					loader.add('d-none');
+					if(data.status == 'success') {
+						swal("Good job!", "Your message sent successfully.", "success");
+						resetForm();
+					} else {
+					swal("OOPS!", data.message, "error");	
+					}
+				}).fail(() => {
+					$('#submit_botton').prop('disabled', false);
+					loader.add('d-none');
+					swal("OOPS!", "Something went wrong. Try again later", "error");
+				})
+
+		}
+		
+		function resetForm() {
+			document.getElementById("name").value = "";
+			document.getElementById("email").value = "";
+			document.getElementById("message").value = "";
+		}
+	</script>
+</body>
+
+
+</html>

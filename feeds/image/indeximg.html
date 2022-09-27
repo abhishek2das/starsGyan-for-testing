@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      font-family: Verdana, sans-serif;
+      margin: 0
+    }
+
+    .mySlidesImg {
+      display: none
+    }
+
+    img {
+      vertical-align: middle;
+    }
+
+    /* Slideshow container */
+    .slideshow-containerImg {
+      max-width: 1000px;
+
+      position: relative;
+      margin: auto;
+    }
+
+    /* NextImg & prevImgious buttons */
+    .prevImg,
+    .nextImg {
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      width: auto;
+      padding: 16px;
+      margin-top: -22px;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+      transition: 0.6s ease;
+      border-radius: 0 3px 3px 0;
+      user-select: none;
+    }
+
+    /* Position the "nextImg button" to the right */
+    .nextImg {
+      right: 0;
+      border-radius: 3px 0 0 3px;
+    }
+
+    /* On hover, add a black background color with a little bit see-through */
+    .prevImg:hover,
+    .nextImg:hover {
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+
+
+    /* Number text (1/3 etc) */
+    .numbertext {
+      color: #f2f2f2;
+      font-size: 12px;
+      padding: 8px 12px;
+      position: absolute;
+      top: 0;
+    }
+
+    /* The dotsImg/bullets/indicators */
+    .dotImg {
+      cursor: pointer;
+      height: 15px;
+      width: 15px;
+      margin: 0 2px;
+      background-color: #bbb;
+      border-radius: 50%;
+      display: inline-block;
+      transition: background-color 0.6s ease;
+    }
+
+    .active,
+    .dotImg:hover {
+      background-color: #717171;
+    }
+
+    /* Fading animation */
+    .fadeImg {
+      animation-name: fade;
+      animation-duration: 1.5s;
+    }
+
+    @keyframes fadeImg {
+      from {
+        opacity: .4
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    /* On smaller screens, decrease text size */
+    @media only screen and (max-width: 300px) {
+
+      .prevImg,
+      .nextImg,
+      .text {
+        font-size: 11px
+      }
+    }
+  </style>
+</head>
+
+<body>
+<!-- Carousel wrapper -->
+<div id="carouselVideoExample" class="carousel slide carousel-fade" data-mdb-ride="carousel">
+  <!-- Indicators -->
+  <div class="carousel-indicators">
+    <button type="button" data-mdb-target="#carouselVideoExample" data-mdb-slide-to="0" class="active"
+      aria-current="true" aria-label="Slide 1"></button>
+    <button type="button" data-mdb-target="#carouselVideoExample" data-mdb-slide-to="1"
+      aria-label="Slide 2"></button>
+    <button type="button" data-mdb-target="#carouselVideoExample" data-mdb-slide-to="2"
+      aria-label="Slide 3"></button>
+  </div>
+
+  <!-- Inner -->
+  <div class="carousel-inner">
+    <!-- Single item -->
+    <div class="carousel-item active">
+      <video class="img-fluid" autoplay loop muted>
+        <source src="https://mdbcdn.b-cdn.net/img/video/Tropical.mp4" type="video/mp4" />
+      </video>
+      <div class="carousel-caption d-none d-md-block">
+        <h5>First slide label</h5>
+        <p>
+          Nulla vitae elit libero, a pharetra augue mollis interdum.
+        </p>
+      </div>
+    </div>
+
+    <!-- Single item -->
+    <div class="carousel-item">
+      <video class="img-fluid" autoplay loop muted>
+        <source src="https://mdbcdn.b-cdn.net/img/video/forest.mp4" type="video/mp4" />
+      </video>
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Second slide label</h5>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        </p>
+      </div>
+    </div>
+
+    <!-- Single item -->
+    <div class="carousel-item">
+      <video class="img-fluid" autoplay loop muted>
+        <source src="https://mdbcdn.b-cdn.net/img/video/Agua-natural.mp4" type="video/mp4" />
+      </video>
+      <div class="carousel-caption d-none d-md-block">
+        <h5>Third slide label</h5>
+        <p>
+          Praesent commodo cursus magna, vel scelerisque nisl consectetur.
+        </p>
+      </div>
+    </div>
+  </div>
+  <!-- Inner -->
+
+  <!-- Controls -->
+  <button class="carousel-control-prev" type="button" data-mdb-target="#carouselVideoExample"
+    data-mdb-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-mdb-target="#carouselVideoExample"
+    data-mdb-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+</div>
+<!-- Carousel wrapper -->
+
+  <script>
+
+function reply_click(clicked_id,value)
+  {
+      alert(clicked_id);
+      alert(value)
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    let slideIndex = 1;
+    showSlides(slideIndex);
+
+    function plusSlides(n) {
+      showSlides(slideIndex += n);
+    }
+
+    function currentSlide(n) {
+      showSlides(slideIndex = n);
+    }
+
+    function showSlides(n) {
+      let i;
+      let slides = document.getElementsByClassName("mySlidesImg");
+      let dotsImg = document.getElementsByClassName("dotImg");
+      if (n > slides.length) { slideIndex = 1 }
+      if (n < 1) { slideIndex = slides.length }
+      for (i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+      }
+      for (i = 0; i < dotsImg.length; i++) {
+        dotsImg[i].className = dotsImg[i].className.replace(" active", "");
+      }
+      slides[slideIndex - 1].style.display = "block";
+      dotsImg[slideIndex - 1].className += " active";
+    }
+  </script>
+
+</body>
+
+</html>
