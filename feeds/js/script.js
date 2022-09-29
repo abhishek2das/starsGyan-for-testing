@@ -684,7 +684,7 @@ async function showCommentFun() {
 
       for (let c = 0; c < allComent.length; c++) {
         // console.log(allComent[c])
-          if (apiId == allComent[c].user_id) {
+          if (apiId !== allComent[c].user_id) {
             if (allComent[c].is_blessed == 0) {
               ArticalBlessing = `<div id="tochangetheBlessColor${allComent[c].id}"><img src="./image/Aashirvaad-svg-01-01.png" class="blessingImg ForBlessCommentId${allComent[c].id} " id="blessOrNot${allComent[c].is_blessed}"  onclick="blessMe(this.id,this.className)"></img></div>`;
             } else if (allComent[c].is_blessed == 1) {
