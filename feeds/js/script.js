@@ -62,7 +62,6 @@ let commentListId = "";
 $(".postP").click(() => {
   postContant = document.getElementById("postText").value;
   postContant = "";
-  forPost = [];
 });
 
 const functionforBreak = function (stringPass, passNum) {
@@ -72,15 +71,20 @@ const functionforBreak = function (stringPass, passNum) {
 };
 
 /// for scroll and hit api //////////////////////////////////////////////////////////////
+
 window.addEventListener("scroll", () => {
-  if (dataEnds == false) {
-    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-    if (scrollTop + clientHeight >= scrollHeight) {
-      page++;
-      api();
-    }
-  }
+  // setTimeout(() => {
+    if (dataEnds == false) {
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      if (scrollTop + clientHeight >= scrollHeight) {
+        page++;
+        api();
+      }
+    } 
+  // }, 1000);
 });
+
+
 /// for scroll and hit api //////////////////////////////////////////////////////////////
 
 // api for loading posts ///////////////////////////////////////////////////////////////
@@ -135,8 +139,8 @@ async function api() {
           // for Conuting greeting //////////////////
           // console.log(data.data[x].images.length)
           if (data.data[x].images.length <= 1) {
-            imagesArePresen = `<div id="singleImagesShow${data.data[x].id}"></div>`;
-            imagesArePresentPop = `<div id="singleImagesShowPop${data.data[x].id}"></div>`;
+            imagesArePresen = `<div  id="singleImagesShow${data.data[x].id}"></div>`;
+            imagesArePresentPop = `<div  id="singleImagesShowPop${data.data[x].id}"></div>`;
           } else {
             imagesArePresen = ` <div id="carouselExampleIndicators${data.data[x].id}" class="carousel slide" data-ride="carousel">
           <ol class="carousel-indicators" id="indicatorId${data.data[x].id}"></ol>
@@ -378,6 +382,7 @@ function imageLoadfunctionFromApi() {
     error: (error) => {},
   });
 }
+
 function ReadMoreClick(elmId) {
   elmId = functionforBreak(elmId, 15);
   showPopUp = `.PopUpMe${elmId}`;
@@ -545,17 +550,8 @@ if(valueForValid == true){
           title: `${data.message}`,
         });
         // stopLoader();
-        document.querySelector("#postText").value = "";
-        image_s = [];
-        mainPost_text = [];
-        multiImgF = [];
-        forPost = [];
-        document.querySelector(".image-show").innerHTML = "";
-        document.getElementById("contentAria").innerHTML = "";
-        dataEnds = false;
-        imagesArePoster = false;
-        page = 1;
-        api();
+        location.reload();
+
       },
       error: function (data) {
         // console.log(data.message);
@@ -580,7 +576,7 @@ const CreatPostDone = Swal.mixin({
 });
 // this for creating a new post ends here //////////////////////////////////////////////////////////////////
 /// on page start alert for logIn//////////////////////////////////////////////////////////////////////////
-
+if(localStorage.OnceLogIn == "false"){
 Swal.fire({
   icon: "warning",
   title: "log in First to view feeds ",
@@ -594,7 +590,7 @@ Swal.fire({
     location.assign("../index.html");
   }
 });
-
+}
 /// on page start alert for logIn //////////////////////////////////////////////////////////////////////////////
 
 // api for like count //////////////////////////////////////////////////////////////////////////////////////////
@@ -678,7 +674,6 @@ async function showCommentFun() {
 
       for (let c = 0; c < allComent.length; c++) {
         // console.log(allComent[c])
-        if (userArticalId == apiId) {
           if (apiId !== allComent[c].user_id) {
             if (allComent[c].is_blessed == 0) {
               ArticalBlessing = `<div id="tochangetheBlessColor${allComent[c].id}"><img src="./image/Aashirvaad-svg-01-01.png" class="blessingImg ForBlessCommentId${allComent[c].id} " id="blessOrNot${allComent[c].is_blessed}"  onclick="blessMe(this.id,this.className)"></img></div>`;
@@ -688,7 +683,7 @@ async function showCommentFun() {
           } else {
             ArticalBlessing = "";
           }
-        }
+        
 
         // console.log(allComent[c]);
 
@@ -919,7 +914,19 @@ function CommentIDPop(Comment_Pop_Id) {
   showCommetPOp = `.commentSec${Comment_Pop_Id}`;
   commentValue = document.getElementById(commentValuePopId).value;
   countComment = `countComment${Comment_Pop_Id}`;
-  if (commentValue == "") {
+
+  checkNum = phoneNumberParser(commentValue);
+  commentValue = EmialValidate( commentValue);
+
+  if (checkNum == true) {
+    sideFireTost.fire({
+      icon: "error",
+      title: `This comment does not meet community guidelines`,
+    });
+    document.getElementById(commentValuePopId).value = "";
+    document.getElementById(commentValuePopId).focus();
+  } 
+  else if (commentValue == "") {
     sideFireTost.fire({
       icon: "warning",
       title: `comment is epmty`,
@@ -980,16 +987,36 @@ function ReplyFunc(postReplyId) {
   rTextId = `replycommentTextId${PostRId}`;
   TextReplyVal = document.getElementById(rTextId).value;
   showRply = `#comment_repls${PostRId}`;
-  document.querySelector(showRply).innerHTML += document.querySelector(
-    showRply
-  ).innerHTML = `<div class="commentReplys">
-  <div><img src="${myProPic}" alt="" class="userCommentPp2"></div>
-  <div class="txtComm2">
-  <p class="commName2">${myproName}</p>
-  <p>${TextReplyVal}</p>
-  </div>`;
-  $(`#comment_repls${PostRId}`).show();
-  sendReplyToComment();
+  TextReplyVal = EmialValidate(TextReplyVal)
+  checkNum = phoneNumberParser(TextReplyVal);
+
+  if (checkNum == true) {
+    sideFireTost.fire({
+      icon: "error",
+      title: `This comment does not meet community guidelines`,
+    });
+    document.getElementById(rTextId).value = "";
+    document.getElementById(rTextId).focus();
+  }else if(TextReplyVal == ""){
+    sideFireTost.fire({
+      icon: "error",
+      title: `The comment box epmty`,
+    });
+    document.getElementById(rTextId).value = "";
+    document.getElementById(rTextId).focus();
+  } else{
+    document.querySelector(showRply).innerHTML +=
+    document.querySelector(showRply).innerHTML = 
+    `<div class="commentReplys">
+    <div><img src="${myProPic}" alt="" class="userCommentPp2"></div>
+    <div class="txtComm2">
+    <p class="commName2">${myproName}</p>
+    <p>${TextReplyVal}</p>
+    </div>`;
+    $(`#comment_repls${PostRId}`).show();
+    sendReplyToComment();
+  }
+
 }
 async function sendReplyToComment() {
   ReplyCommentS = {
@@ -1264,22 +1291,22 @@ function blessMe(elmId, elmClass) {
   elmId = functionforBreak(elmId, 10);
   elmClass = functionforBreak(elmClass, 29);
   classForBlessChange = `#tochangetheBlessColor${elmClass}`;
-  if (elmId == 1) {
-    blesed_or_Not = 0;
-    document.querySelector(
-      classForBlessChange
-    ).innerHTML = `<img src="./image/Aashirvaad-svg-01-01.png" class="blessingImg ForBlessCommentId${elmClass} " id="blessOrNot0"  onclick="blessMe(this.id,this.className)"></img>`;
+  if (userArticalId == apiId) {
+    if (elmId == 1) {
+       blesed_or_Not = 0;
+       document.querySelector(classForBlessChange).innerHTML = 
+       `<img src="./image/Aashirvaad-svg-01-01.png" class="blessingImg ForBlessCommentId${elmClass} " id="blessOrNot0"  onclick="blessMe(this.id,this.className)"></img>`;
     //  console.log(0)
-  } else if (elmId == 0) {
+   } else if (elmId == 0) {
     blesed_or_Not = 1;
-    document.querySelector(
-      classForBlessChange
-    ).innerHTML = `<img src="./image/Dark_Ashirvaad-svg-01-01.png" class="blessingImg ForBlessCommentId${elmClass}"  id="blessOrNot1" onclick="blessMe(this.id,this.className)"></img>`;
+    document.querySelector(classForBlessChange).innerHTML = 
+    `<img src="./image/Dark_Ashirvaad-svg-01-01.png" class="blessingImg ForBlessCommentId${elmClass}"  id="blessOrNot1" onclick="blessMe(this.id,this.className)"></img>`;
     // console.log(1)
   }
-
   SendblessingApi(blesed_or_Not, elmClass);
 }
+}
+
 function SendblessingApi(blesed_or_Not, commentId) {
   blessingData = {
     id: commentId,

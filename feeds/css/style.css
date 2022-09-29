@@ -19321,8 +19321,8 @@ img.absolute_image {
 }
 .proImg {
   position: absolute;
-  top: -8px;
-  right: 310px;
+  top: 10px;
+  left: 50px;
   border-radius: 50%;
 }
 .imagePro {
@@ -19333,9 +19333,9 @@ img.absolute_image {
 }
 .profName {
   position: absolute;
-  bottom: 30px;
-  right: 55px;
-  color: white !important;
+  bottom: 13px;
+  right: 60px;
+  color: #fff !important;
   font-size: 54px;
   font-weight: 500;
 }
@@ -19807,7 +19807,7 @@ img {
 display: none;
 }
 .popUpFeeds{
-  z-index: 10003;
+  z-index: 100;
   position: fixed;
   width: 1000px;
   background-color: #fff;
@@ -20314,5 +20314,7 @@ color:black
     .myUlCommList li a:hover:not(.header) {
       background-color: rgb(219, 100, 100) !important;
     }
-
+.swal2-container {
+  z-index: 10000;
+}
 /* /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
