@@ -987,7 +987,7 @@ function ReplyFunc(postReplyId) {
   rTextId = `replycommentTextId${PostRId}`;
   TextReplyVal = document.getElementById(rTextId).value;
   showRply = `#comment_repls${PostRId}`;
-  TextReplyVal = EmialValidate(TextReplyVal)
+  TextReplyVal = EmialValidate(TextReplyVal);
   checkNum = phoneNumberParser(TextReplyVal);
 
   if (checkNum == true) {
@@ -1362,7 +1362,7 @@ function EmialValidate(ElmVal) {
   EmailValidator = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi;
 if ((ElmVal.match(EmailValidator))) {
   replaceText = ElmVal.match(EmailValidator)
-  replaceText = ElmVal.replace(replaceText,"......@Email")
+  replaceText = ElmVal.replace(replaceText," ")
   return  replaceText
 } else {
   return ElmVal
