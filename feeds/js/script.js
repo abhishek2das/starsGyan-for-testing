@@ -856,7 +856,7 @@ function CommentID(Comment_Id) {
   commentValue = document.getElementById(commentValueId).value;
 
   checkNum = phoneNumberParser(commentValue);
-  commentValue = EmialValidate( commentValue);
+  checkMail = EmialValidate( commentValue);
   // console.log(commentValue)
  
   // let goAhead = "";
@@ -870,7 +870,15 @@ function CommentID(Comment_Id) {
   //     commentOptionShow = true;
   //   }
   // }
-  if (checkNum == true) {
+  if(checkMail == true){
+  sideFireTost.fire({
+    icon: "error",
+    title: `This comment does not meet community guidelines`,
+  });
+  document.getElementById(rTextId).value = "";
+  document.getElementById(rTextId).focus();
+}
+  else if (checkNum == true) {
     sideFireTost.fire({
       icon: "error",
       title: `This comment does not meet community guidelines`,
@@ -916,9 +924,15 @@ function CommentIDPop(Comment_Pop_Id) {
   countComment = `countComment${Comment_Pop_Id}`;
 
   checkNum = phoneNumberParser(commentValue);
-  commentValue = EmialValidate( commentValue);
-
-  if (checkNum == true) {
+  checkMail = EmialValidate( commentValue);
+  if(checkMail == true){
+    sideFireTost.fire({
+      icon: "error",
+      title: `This comment does not meet community guidelines`,
+    });
+    document.getElementById(rTextId).value = "";
+    document.getElementById(rTextId).focus();
+  } else if (checkNum == true) {
     sideFireTost.fire({
       icon: "error",
       title: `This comment does not meet community guidelines`,
@@ -987,10 +1001,17 @@ function ReplyFunc(postReplyId) {
   rTextId = `replycommentTextId${PostRId}`;
   TextReplyVal = document.getElementById(rTextId).value;
   showRply = `#comment_repls${PostRId}`;
-  TextReplyVal = EmialValidate(TextReplyVal);
+ checkMail = EmialValidate(TextReplyVal);
   checkNum = phoneNumberParser(TextReplyVal);
-
-  if (checkNum == true) {
+if(checkMail == true){
+  sideFireTost.fire({
+    icon: "error",
+    title: `This comment does not meet community guidelines`,
+  });
+  document.getElementById(rTextId).value = "";
+  document.getElementById(rTextId).focus();
+}
+  else if (checkNum == true) {
     sideFireTost.fire({
       icon: "error",
       title: `This comment does not meet community guidelines`,
@@ -1363,8 +1384,8 @@ function EmialValidate(ElmVal) {
 if ((ElmVal.match(EmailValidator))) {
   replaceText = ElmVal.match(EmailValidator)
   replaceText = ElmVal.replace(replaceText," ")
-  return  replaceText
+  return  true
 } else {
-  return ElmVal
+  return false
 }
 }
