@@ -498,16 +498,26 @@ async function imageToGallry() {
 // this for creating a new post ///////////////////////////////////////////////////////////////////////////
 function main_post() {
   mainPost_text = document.querySelector("#postText").value;
- mainPost_text = EmialValidate(mainPost_text);
+  checkMail = EmialValidate(mainPost_text);
  valueForValid = phoneNumberParser(mainPost_text);
 
   image_s = imageUpload_id;
-if(valueForValid == true){
+  if(checkMail == true){
+    sideFireTost.fire({
+      icon: "warning",
+      title: `Email is Not allowed in post`,
+    });
+    // document.getElementById("#postText").value = "";
+    document.getElementById("#postText").focus();
+  }
+else if(valueForValid == true){
   sideFireTost.fire({
     icon: "warning",
-    title: `This comment does not meet community guidelines`,
+    title: `Phone number is Not allowed post`,
   });
-  document.querySelector("#postText").value =""
+  // document.querySelector("#postText").value =""
+  document.getElementById("#postText").focus();
+
   mainPost_tex ="";
 }
   else if (imagesArePoster == false) {
@@ -872,15 +882,15 @@ function CommentID(Comment_Id) {
   // }
   if(checkMail == true){
   sideFireTost.fire({
-    icon: "error",
+    icon: "warning",
     title: `This comment does not meet community guidelines`,
   });
-  document.getElementById(rTextId).value = "";
-  document.getElementById(rTextId).focus();
+  document.getElementById(commentValueId).value = "";
+  document.getElementById(commentValueId).focus();
 }
   else if (checkNum == true) {
     sideFireTost.fire({
-      icon: "error",
+      icon: "warning",
       title: `This comment does not meet community guidelines`,
     });
     document.getElementById(commentValueId).value = "";
@@ -928,16 +938,16 @@ function CommentIDPop(Comment_Pop_Id) {
   if(checkMail == true){
     sideFireTost.fire({
       icon: "error",
-      title: `This comment does not meet community guidelines`,
+      title: `Email is not allowed in comment`,
     });
-    document.getElementById(rTextId).value = "";
-    document.getElementById(rTextId).focus();
+    // document.getElementById(commentValuePopId).value = "";
+    document.getElementById(commentValuePopId).focus();
   } else if (checkNum == true) {
     sideFireTost.fire({
-      icon: "error",
-      title: `This comment does not meet community guidelines`,
+      icon: "warning",
+      title: `Phone number is Not allowed in comment`,
     });
-    document.getElementById(commentValuePopId).value = "";
+    // document.getElementById(commentValuePopId).value = "";
     document.getElementById(commentValuePopId).focus();
   } 
   else if (commentValue == "") {
@@ -1005,18 +1015,18 @@ function ReplyFunc(postReplyId) {
   checkNum = phoneNumberParser(TextReplyVal);
 if(checkMail == true){
   sideFireTost.fire({
-    icon: "error",
-    title: `This comment does not meet community guidelines`,
+    icon: "worning",
+    title: `Email is not allowed in comment`,
   });
-  document.getElementById(rTextId).value = "";
+  // document.getElementById(rTextId).value = "";
   document.getElementById(rTextId).focus();
 }
   else if (checkNum == true) {
     sideFireTost.fire({
-      icon: "error",
-      title: `This comment does not meet community guidelines`,
+      icon: "worning",
+      title: `Phone number is not allowed in comment`,
     });
-    document.getElementById(rTextId).value = "";
+    // document.getElementById(rTextId).value = "";
     document.getElementById(rTextId).focus();
   }else if(TextReplyVal == ""){
     sideFireTost.fire({
