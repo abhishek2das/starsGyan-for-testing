@@ -680,22 +680,27 @@ async function showCommentFun() {
     url: `https://api.starsgyan.com/StarsGyanAPIQA/api/comment/${apiId}/getlist/${articalId}`,
     beforeSend: function () {},
     success: function (allComent) {
-      // console.log(allComent)
-
+      
+      console.log(allComent)
       for (let c = 0; c < allComent.length; c++) {
-        // console.log(allComent[c])
-          if (apiId !== allComent[c].user_id) {
-            if (allComent[c].is_blessed == 0) {
-              ArticalBlessing = `<div id="tochangetheBlessColor${allComent[c].id}"><img src="./image/Aashirvaad-svg-01-01.png" class="blessingImg ForBlessCommentId${allComent[c].id} " id="blessOrNot${allComent[c].is_blessed}"  onclick="blessMe(this.id,this.className)"></img></div>`;
-            } else if (allComent[c].is_blessed == 1) {
-              ArticalBlessing = `<div id="tochangetheBlessColor${allComent[c].id}"><img src="./image/Dark_Ashirvaad-svg-01-01.png  " class="blessingImg ForBlessCommentId${allComent[c].id}"  id="blessOrNot${allComent[c].is_blessed}" onclick="blessMe(this.id,this.className)"></img></div>`;
-            }
-          } else {
-            ArticalBlessing = "";
-          }
-        
-
-        // console.log(allComent[c]);
+        console.log(allComent[c])
+    
+        if(apiId ==  userArticalId){
+          if(allComent[c].is_blessed == 0){
+            ArticalBlessing = `<div id="tochangetheBlessColor${allComent[c].id}"><img src="./image/Aashirvaad-svg-01-01.png" class="blessingImg ForBlessCommentId${allComent[c].id} " id="blessOrNot${allComent[c].is_blessed}"  onclick="blessMe(this.id,this.className)"></img></div>`;
+        }else if(allComent[c].is_blessed == 1){
+            ArticalBlessing = `<div id="tochangetheBlessColor${allComent[c].id}"><img src="./image/Dark_Ashirvaad-svg-01-01.png  " class="blessingImg ForBlessCommentId${allComent[c].id}"  id="blessOrNot${allComent[c].is_blessed}" onclick="blessMe(this.id,this.className)"></img></div>`;
+        }
+        }else{
+          if(allComent[c].is_blessed == 0){
+            ArticalBlessing = "" 
+            // `<div id="tochangetheBlessColor${allComent[c].id}"><img src="./image/Aashirvaad-svg-01-01.png" class="blessingImg ForBlessCommentId${allComent[c].id} " id="blessOrNot${allComent[c].is_blessed}"  onclick="blessMe(this.id,this.className)"></img></div>`;
+          }else if(allComent[c].is_blessed == 1){
+            ArticalBlessing = `<div id="tochangetheBlessColor${allComent[c].id}"><img src="./image/Dark_Ashirvaad-svg-01-01.png  " class="blessingImg ForBlessCommentId${allComent[c].id}"  id="blessOrNot${allComent[c].is_blessed}" onclick="blessMe(this.id,this.className)"></img></div>`;
+        }
+        }
+          
+ 
 
         document.querySelector(showComment).innerHTML += document.querySelector(
           showComment
