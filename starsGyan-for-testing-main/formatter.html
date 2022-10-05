@@ -1,0 +1,1953 @@
+<?php
+
+/**
+ * Created by PhpStorm.
+ * User: Qurious Click
+ * Date: 6/13/2017
+ * Time: 11:20 AM
+ */
+
+use app\assets\admin\page\ProfileAsset;
+use app\assets\admin\form\XeditableAsset;
+use app\assets\admin\form\ElementAsset;
+use app\components\Application_helper;
+
+
+use app\assets\admin\dashboard\DashboardAsset;
+
+ElementAsset::register($this);
+ProfileAsset::register($this);
+XeditableAsset::register($this);
+DashboardAsset::register($this);
+
+$this->title = "42nite - Posts";
+$user_id = Application_helper::_get_user_id();
+$user_role = Application_helper::_get_user_role();
+
+$user_profile_picture = "https://www.eventhues.com/images/defaultPic.png";
+if (empty($user_detail[0]['user_profile_pic'])) {
+    $user_profile_picture = $user_detail[0]['user_profile_pic'];
+}
+
+$google_maps_api_key = Application_helper::get_google_maps_api_key()
+?>
+<script src="<?php echo Yii::$app->homeUrl . "assets/admin/js/jquery.min.js" ?>"></script>
+<script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@3.1.1/dist/index.min.js"></script>
+
+
+<script src="<?php echo Yii::$app->homeUrl . "assets/admin/js/jquery.cookie.min.js" ?>"></script>
+
+<script src="<?php echo Yii::$app->homeUrl . "assets/global/plugins/bower_components/noty/js/noty/packaged/jquery.noty.packaged.min.js" ?>"></script>
+<script src="<?php echo Yii::$app->homeUrl . "assets/admin/js/pages/blankon.ui.feature.notifications.js" ?>"></script>
+
+<!--video library cdn-->
+<link href="https://vjs.zencdn.net/7.8.4/video-js.css" rel="stylesheet" />
+
+<!-- If you'd like to support IE8 (for Video.js versions prior to v7) -->
+<script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+<script src="https://vjs.zencdn.net/7.8.4/video.js"></script>
+
+<meta charset="UTF-8">
+
+
+<script>
+    var userRole = <?php echo json_encode($user_role); ?>;
+</script>
+
+<!-- START @PAGE CONTENT -->
+<section id="page-content">
+
+    <!-- Start page header -->
+    <div class="header-content">
+        <h2>
+
+
+            <?php
+            $options = '';
+            $display = 'display:none';
+            if ($user_role == 'Admin' || $user_role == 'VenueOwner') {
+                $display = '';
+            }
+            if ($user_role == 'Admin') {
+                $options .= "<option value='42niteTeam'>42nite Team</option>";
+            }
+
+            if ($user_role != 'Admin') {
+                $options .= "<option value='All'>All Posts</option>";
+            }
+
+            if ($model->isNewRecord) {
+                foreach ($venue_data as $venue) {
+                    $options .= "<option value='" . $venue['id'] . "'>" . $venue['name'] . "</option>";
+                }
+            }
+
+            if (!$model->isNewRecord) {
+                foreach ($venue_data as $venue) {
+                    $options .= "<option value='" . $venue['id'] . "'>" . $venue['name'] . "</option>";
+                }
+            }
+            ?>
+            <i class="fa fa-eye" style="<?php echo $display ?>"></i><span style="<?php echo $display ?>"> Post Displayed</span>
+            <select style="<?php echo $display ?>" class="" name="selected_venue_id" id="selected_venue_id">
+                <?php print_r($options); ?>
+            </select>
+
+
+
+            <?php
+
+            $options = '';
+
+
+            $selectedVenueName = '';
+            if ($user_role == 'Admin' || $user_role == 'VenueOwner') {
+                // if ($model->isNewRecord) {
+                foreach ($venue_data as $venue) {
+                    if ($venue_param == $venue['id']) {
+                        $options .= "<option value='" . $venue['id'] . "'  id='" . $venue['id'] . "' selected>" . $venue['name'] . "</option>";
+                        $selectedVenueName = $venue['name'];
+                    } else
+                        $options .= "<option value='" . $venue['id'] . "' id='" . $venue['id'] . "' >" . $venue['name'] . "</option>";
+                }
+                // }
+
+                // if (!$model->isNewRecord) {
+                //     foreach ($venue_data as $venue) {
+                //         $options .= "<option value='" . $venue['id'] . "'>" . $venue['name'] . "</option>";
+                //     }
+                // }
+            } else {
+                $options .= "<option value=''></option>";
+            }
+            if (empty($venue_param)) {
+                $venue_param = $venue_data[0]['id'];
+                $selectedVenueName = $venue_data[0]['name'];
+            }
+            ?>
+
+            <i class="fa fa-user"></i><span style="<?php echo $display ?>">Active Profile</span>
+            <select style="<?php echo $display ?>" class="" name="active_venue_id" id="active_venue_id">
+                <?php print_r($options); ?>
+            </select>
+
+
+        </h2>
+
+        <div class="breadcrumb-wrapper hidden-xs">
+            <!-- <span class="label">You are here:</span> -->
+            <ol class="breadcrumb">
+                <li>
+                    <i class="fa fa-home"></i>
+                    <a href="<?= Yii::$app->getUrlManager()->createUrl('dashboard/index') ?>">Dashboard</a>
+                    <i class="fa fa-angle-right"></i>
+                </li>
+                <li>
+                    <a href="#">Posts</a>
+                    <i class="fa fa-angle-right"></i>
+                </li>
+                <li class="active" id="venue_name_text"><?php echo $selectedVenueName ?></li>
+            </ol>
+        </div><!-- /.breadcrumb-wrapper -->
+    </div>
+    <!--/ End page header -->
+
+    <!-- Start body content -->
+    <div class="body-content animated fadeIn" id="main-div">
+
+        <div class="row">
+            <a href="<?php echo Yii::$app->homeUrl . "posts/view" ?>">
+                <div class="col-lg-6 col-md-6 col-sm-4 col-xs-12">
+                    <div class="mini-stat clearfix bg-facebook-click rounded">
+                        <span class="mini-stat-icon"><i class="fa fa-pencil-square-o" style="color: #3b5998"></i></span>
+                        <div class="mini-stat-info">
+                            <span class="block" id="posts"><?php echo $data['total_posts']; ?></span>
+                            Posts
+                        </div>
+                    </div>
+                </div>
+            </a>
+            <a href="<?php echo Yii::$app->homeUrl . "report/news-feed-report?chart_type=reach" ?>">
+                <div class="col-lg-6 col-md-6 col-sm-4 col-xs-12">
+                    <div class="mini-stat clearfix bg-soundcloud rounded">
+                        <span class="mini-stat-icon"><i class="fa fa-eye" style="color: #ff7700"></i></span>
+                        <div class="mini-stat-info">
+                            <span class="block" id="post_reach"><?php echo $data['total_reach']; ?></span>
+                            Reach
+                        </div>
+                    </div>
+                </div>
+            </a>
+            <a href="<?php echo Yii::$app->homeUrl . "report/news-feed-report?chart_type=likes" ?>">
+                <div class="col-lg-6 col-md-6 col-sm-4 col-xs-12">
+                    <div class="mini-stat clearfix bg-youtube rounded">
+                        <span class="mini-stat-icon"><i class="fa fa-heart fg-heart" style="color: #c4302b"></i></i></span>
+                        <div class="mini-stat-info">
+                            <span class="block" id="post_like"><?php echo $data['total_likes']; ?></span>
+                            Likes
+                        </div>
+                    </div>
+                </div>
+            </a>
+            <a href="<?php echo Yii::$app->homeUrl . "report/news-feed-report?chart_type=comment" ?>">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="mini-stat clearfix bg-comment rounded">
+                        <span class="mini-stat-icon"><i class="fa fa fa-comment" style="color: #16a085"></i></span>
+                        <div class="mini-stat-info">
+                            <span class="block" id="totalComments"><?php echo $data['total_comments']; ?></span>
+                            Comments
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="row">
+
+            <a href="<?php echo Yii::$app->homeUrl . "report/news-feed-report?chart_type=shares" ?>" class="hide">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                    <div class="mini-stat clearfix bg-share rounded">
+                        <span class="mini-stat-icon"><i class="fa fa-share-alt" style="color: #8e44ad"></i></span>
+                        <div class="mini-stat-info">
+                            <span class="block" id="post_share"><?php echo $data['total_share']; ?></span>
+                            Shares
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+                <div class="row">
+                    <div class="panel rounded shadow">
+                        <form method="post" action="<?= Yii::$app->getUrlManager()->createUrl('posts/create-post'); ?>" accept-charset="UTF-8">
+
+                            <textarea id="content" name="Posts[content]" class="form-control input-lg no-border
+                        autosize" data-emojiable="true" rows="4" placeholder="What’s for tonight?"></textarea>
+                            <input type="text" class="hide" hidden value="no" name="event_id" id="selected_event_id" />
+                            <input type="text" class="hide" hidden value="" name="event_dp" id="selected_event_dp" />
+                            <input type="text" class="hide" hidden value="" name="event_meta_id" id="selected_event_meta_id" />
+                            <input type="text" class="hide" hidden value="" name="event_type" id="event_type_field" />
+
+                            <div class="panel-body" id="image_upload" style="display: none;">
+                                <div id="my-dropzone" class="dropzone mb-20 rounded" method="post" enctype="multipart/form-data">
+                                    <div class="fallback"><input name="file" type="file" multiple />
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+                            <?php
+
+                            if ($user_role == "Admin") {
+                                $get_user_follower_data_sql = "SELECT CONCAT(`users`.`id`, '-USER'), `users`.`name` FROM `users`";
+                            }
+                            if ($user_role == "Promoter") {
+                                // $get_user_follower_data_sql = "SELECT `users`.`id`, `users`.`name` FROM `promoter_fav` LEFT JOIN `users` ON `users`.`id` = `promoter_fav`.`user_id` WHERE `promoter_fav`.`promoter_id` = $user_id";                                
+                                $get_user_follower_data_sql = "SELECT 
+                                (CASE WHEN `users_followers`.`venue_id` THEN CONCAT(`venue_detail`.`name`,'') ELSE CONCAT(`user_login`.`display_name`,'') END) AS `name`,
+                                (CASE WHEN `users_followers`.`venue_id` THEN  CONCAT(`users_followers`.`venue_id`,'-VENUE') ELSE CONCAT(`user_login`.`user_id`, '-USER') END) AS `id`
+                                FROM `users_followers`                               
+                                LEFT JOIN `user_login` ON  `user_login`.`user_id`  = `users_followers`.`users_id` 
+                           LEFT JOIN `venue_detail` ON  `venue_detail`.`id`  = `users_followers`.`venue_id` 
+                                WHERE `users_followers`.`other_users_id` = $user_id AND `users_followers`.`status` = 1";
+                            }
+
+                            if ($user_role == "VenueOwner") {
+                                // $get_user_follower_data_sql = "SELECT `users`.`id`, `users`.`name` FROM `users_followers` LEFT JOIN `users` ON `users`.`id` = `users_followers`.`users_id` WHERE `users_followers`.`other_users_id` = $user_id AND `users_followers`.`status` = 1";
+                                // `venue_followers`.`user_id` as `id`, `users`.`name` 
+
+                                $get_user_follower_data_sql = "SELECT
+                                (CASE WHEN `venue_followers`.`action_venue_id` THEN CONCAT(`venue_detail`.`name`,'') ELSE CONCAT(`user_login`.`display_name`,'') END) AS `name`,
+                                (CASE WHEN `venue_followers`.`action_venue_id` THEN  CONCAT(`venue_followers`.`action_venue_id`,'-VENUE') ELSE CONCAT(`user_login`.`user_id`, '-USER') END) AS `id`
+
+                                 FROM `venue_followers` 
+                           LEFT JOIN `users` ON `users`.`id` = `venue_followers`.`user_id` 
+                           LEFT JOIN `user_login` ON  `user_login`.`user_id`  = `venue_followers`.`user_id` 
+                           LEFT JOIN `venue_detail` ON  `venue_detail`.`id`  = `venue_followers`.`action_venue_id` 
+                           WHERE `venue_followers`.`venue_id` = $venue_param";
+                            }
+
+                            // print_r($get_user_follower_data_sql);
+                            try {
+                                $user_list = Application_helper::getData($get_user_follower_data_sql);
+                                // var_dump( $user_list);
+                                // die();
+                                $options = '';
+                                foreach ($user_list as $users) {
+                                    $options .= "<option value='" . $users['id'] . "'>" . $users['name'] . "</option>";
+                                }
+                            } catch (Exception $e) {
+                                // echo 'Caught exception: ',  $e->getMessage(), "\n";
+                                // print_r($post_data_sql);
+                                // die();
+                            }
+                            ?>
+
+                            <div class="panel-body" id="user_tag" style="display: none">
+                                <select data-placeholder="Tagged User" id='venues' name='venues' class="form-control pac-input chosen-select" multiple tabindex="4">
+                                    <?php echo $options ?>
+                                </select>
+                            </div>
+
+                            <div class="panel-body">
+                                <input type="text" name="Posts[name]" class="form-control pac-input" style="display: none;" placeholder="Where are you?" id="pac-input" value="" />
+                            </div>
+
+                            <input type='hidden' id='post_venue_id' name='post_venue_id' value=''>
+                            <input type="hidden" name="Posts[latitude]" id="latitude" value="" />
+                            <input type="hidden" name="Posts[longitude]" id="longitude" value="" />
+                            <input type="hidden" name="Posts[address]" id="address" value="" />
+                            <input type="hidden" type='hidden' id='venue_tag' name='venue_tag' value=''>
+                            <input type='hidden' id='image_add' name='image_add' value=''>
+
+                            <?php
+
+                            $url = Yii::$app->urlManager->createUrl(["posts/createpostimage"]);
+                            $get_all_url = Yii::$app->urlManager->createUrl(["posts/getallimage?id=$model->id"]);
+                            $get_image = Yii::$app->urlManager->createUrl(["image/posts_media/$model->id"]);
+                            $postViewURL = Yii::$app->urlManager->createUrl(["posts/view"]);
+
+                            echo "<div>
+                                <input type='hidden' id='deleteImage' name='deleteImage' value=''>
+                                <input type='hidden' id='urldata' name='urldata' value='$url'>
+                                <input type='hidden' id='get_all_url' name='get_all_url' value='$get_all_url'>
+                                <input type='hidden' id='get_image' name='get_image' value='$get_image'>
+                                <input type='hidden' id='postViewURL' name='postViewURL' value='$postViewURL'>
+                              </div>";
+                            ?>
+                            <div id="map" style="display: none;"></div>
+
+                            <div class="panel-footer">
+                                <button type="submit" class="btn btn-success pull-right mt-5" id="post_create">
+                                    POST
+                                </button>
+                                <ul class="nav nav-pills">
+                                    <li><a id="marker" data-toggle="tooltip" data-placement="top" data-html="true" title="<i> Photo/Video </i>"><i class="fa fa-camera fa-lg"></i></a></li>
+                                    <?php
+                                    if ($user_role == "Promoter") {
+                                        echo '<li><a id="check_in" data-toggle="tooltip" data-placement="top"
+                                           title="<i> Check in </i>" data-html="true"><i
+                                                    class="fa fa-map-marker fa-lg"></i></a>
+                                            </li>';
+                                    }
+                                    ?>
+                                    <style>
+                                        .disabled {
+                                            pointer-events: none;
+                                            cursor: default;
+                                        }
+                                    </style>
+                                    <li id="tag_user_icon"><a id="tagged_user" data-toggle="tooltip" data-placement="top" data-html="true" title="<i> Tag Friends </i>"><i class="fa fa-user fa-lg"></i></a></li>
+                                    <li><a id="emoButton" data-toggle="tooltip" data-placement="top" class="" data-html="true" title="<i> Emoji</i>"><i class="fa fa-smile-o fa-lg" aria-hidden="true"></i></a></li>
+                                    <li><a id="tagEvent" data-toggle="tooltip" data-placement="top" class="" data-html="true" title="<i> Tag Event</i>"><i class="fa fa-calendar fa-lg" aria-hidden="true"></i> <span id="eventNameOnPanel" style="cursor:pointer;"></span></a></li>
+
+
+                                    <!--    <li><a id="eventNameOnPanel" data-toggle="tooltip" data-placement="top" class=""-->
+                                    <!--data-html="true" style="cursor:pointer;"></a></li>-->
+                                </ul>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2"></div>
+        </div>
+
+        <style>
+            .fa-smile-o:before {
+                content: "\f118";
+                font-size: 17px;
+                margin-top: 2px;
+                font-weight: 700;
+            }
+        </style>
+
+        <!--        padding: 10px 20px 10px 20px;-->
+        <div class="row">
+            <div class="col-lg-3 col-md-3 col-sm-4"></div>
+            <div class="col-lg-9 col-md-9 col-sm-8">
+                <div class="row">
+                    <div class="posts">
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="postLoader" class="lds-ellipsis">
+                        <div></div>
+                        <div></div>
+                        <div></div>
+                        <div></div>Loading
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="modal-venues" tabindex="-1" role="dialog" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="panel panel-tab panel-tab-double">
+
+                    <div class="panel widget-todo rounded shadow">
+                        <div class="panel-heading">
+                            <div class="pull-left">
+                                <h3 class="panel-title">Venue List</h3>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="panel-body no-padding form-group">
+
+                            <input type="text" value="" name="venue_id" id="venue_id">
+
+                            <div class="form-group" id="venue_lists" name="venue_lists">
+                            </div>
+
+                            <div class="form-footer pull-left">
+                                <div class="col-sm-offset-3">
+                                    <button id="select_venue" class="btn btn-success">SELECT</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="comment_model" tabindex="-1" role="dialog" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="panel panel-tab panel-tab-double">
+
+                    <div class="panel widget-todo rounded shadow">
+                        <div class="panel-heading">
+                            <div class="pull-left">
+                                <h3 class="panel-title">All Comments</h3>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="panel-body no-padding form-group">
+
+                            <div class="form-group" id="comment_data"></div>
+
+                            <div class="form-footer pull-left">
+                                <div class="col-sm-offset-3">
+                                    <button id="comment_cancel" class="btn btn-tumblr">Close</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="share_link_model" tabindex="-1" role="dialog" aria-hidden="true">
+
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="panel panel-tab panel-tab-double">
+
+                    <div class="panel widget-todo rounded shadow">
+                        <div class="panel-body no-padding form-group">
+
+                            <div class="form-group" id="share_link"></div>
+
+                            <div class="form-footer pull-left">
+                                <div class="col-sm-offset-3">
+                                    <button id="share_cancel" class="btn btn-tumblr">Close</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary hide hidden" style="display:none;" id="tag_modal_button" data-toggle="modal" data-target="#tagModal">
+        Launch demo modal
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="tagModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="panel panel-tab panel-tab-double">
+
+                    <div class="panel widget-todo rounded shadow">
+                        <div class="panel-heading" style="background:#8cc152; color:white;">
+                            <div class="pull-left">
+                                <h3 class="panel-title">All Tagged Users</h3>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="panel-body no-padding form-group">
+                            <ul class="list-group" id="tag_data"></ul>
+
+                            <div class="form-footer pull-left">
+                                <div class="col-sm-offset-3">
+                                    <button data-dismiss="modal" class="btn btn-tumblr">Close</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" class="btn btn-info btn-lg hide" id="eventTagModalButton" data-toggle="modal" data-target="#eventTagModal" hidden>open event tag modal</button>
+    <div id="eventTagModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Events List</h4>
+                </div>
+
+                <div class="modal-body">
+                    <input type="text" id="event_typing" class="form-control" placeholder="Search for upcoming event name or date" onkeyup="eventSearch()" /> <br />
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#eventTable" onclick="toggleEvent('upcoming')">Upcoming Events</a></li>
+                        <li><a data-toggle="tab" href="#past_event_table" onclick="toggleEvent('past')">Past Events</a></li>
+                    </ul>
+
+                    <div class="tab-content" style="max-height:500px; overflow: scroll;">
+                        <table id="eventTable" class="table table-striped table-lilac tab-pane fade in active" style="margin-left: 0px;text-align:center;">
+                            <thead>
+                                <tr>
+                                    <th data-class="expand" style="min-width: 150px" class="text-center">Select</th>
+                                    <th data-hide="phone" style="min-width: 150px" class="text-center">Event Name</th>
+                                    <th data-hide="phone" style="min-width: 150px" class="text-center">Event Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="eventTagModalBody">
+                            </tbody>
+                        </table>
+                        <table id="past_event_table" class="table table-striped table-teal tab-pane fade" style="margin-left: 0px;text-align:center;">
+                            <thead>
+                                <tr>
+                                    <th data-class="expand" style="min-width: 100px" class="text-center">Select</th>
+                                    <th data-hide="phone" style="min-width: 100px" class="text-center">Event Name</th>
+                                    <th data-hide="phone" style="min-width: 100px" class="text-center">Uploaded Images</th>
+                                    <th data-hide="phone" style="min-width: 100px" class="text-center">Event Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pastEventTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+                <div class="modal-footer hide" hidden>
+                    <button type="button" class="btn btn-default" id="closeEventModal" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Start footer content -->
+    <?php echo $this->render('/shares/_footer_admin'); ?>
+    <!--/ End footer content -->
+
+</section><!-- /#page-content -->
+<!--/ END PAGE CONTENT -->
+
+
+<?php
+echo "<script
+            src='https://maps.googleapis.com/maps/api/js?key=$google_maps_api_key&libraries=places&callback=initAutocomplete'
+            async defer>
+      </script> ";
+?>
+
+
+
+<script>
+    var offset = 0;
+    // for hide and and show dropzone
+    $("#marker").click(function() {
+        $("#image_upload").toggle();
+    });
+
+    // for hide and show check in
+    $("#check_in").click(function() {
+        $("#pac-input").toggle();
+    });
+
+    // for hide and show tagged user
+    $("#tagged_user").click(function() {
+        $("#user_tag").toggle();
+    });
+
+    //for get selected venue_id for post creation
+    $("#post_venue_id").val($('#active_venue_id').val());
+    $("#active_venue_id").change(function() {
+        $("#post_venue_id").val($('#active_venue_id').val());
+        offset = 0;
+        document.getElementById("venue_name_text").innerHTML = $('#active_venue_id').val();
+        window.location = $('#postViewURL').val() + "?venue=" + $('#active_venue_id').val();
+
+    });
+
+    $(".checkboxes li input").click(function() {
+        var x = $(this).attr("name");
+        $(".checkboxes").find("input[name=" + x + "]").attr('checked', "checked");
+    });
+
+    $("#select_venue").click(function() {
+
+        var venue_selected_id = document.getElementById("chk_box").name;
+        document.getElementById("selected_venue_id").selectedIndex = venue_selected_id;
+        $('#modal-venues').modal('toggle');
+    });
+
+    var dropdown = document.getElementById("venues");
+    dropdown.onchange = function(event) {
+        var venue_tag = document.getElementById("venue_tag").value;
+        $('#venue_tag').val($(this).val());
+        // window.alert($(this).val());
+    };
+
+    $(function() {
+        $('form').submit(function() {
+            document.getElementById("post_create").disabled = true;
+
+            if (($('#content').val() === "") && ($('#pac-input').val() === "") && $('#image_add').val() === "") {
+                notification_message("At least one information is required for creating post.", "error");
+                document.getElementById("post_create").disabled = false;
+                return false;
+            } else {
+                //notification_message("Post created successfully.", "success");
+                return true;
+            }
+        });
+    });
+
+    var post_created_message = "<?php echo $post_creating_message ?>";
+
+    if (post_created_message) {
+        notification_message(post_created_message, "success");
+    }
+
+    function initAutocomplete() {
+        try {
+            var lat = document.getElementById("latitude").value;
+            var log = document.getElementById("longitude").value;
+            var address = document.getElementById("address").value;
+            var pac_name = document.getElementById("pac-input").value;
+
+            document.getElementById("pac-input").value = pac_name;
+
+            if (lat != '') {
+                var latitude = parseFloat(lat);
+            } else {
+                var latitude = 28.5383;
+            }
+
+            if (log != '') {
+                var longitude = parseFloat(log);
+            } else {
+                var longitude = -81.3792;
+            }
+
+            var myLatlng = {
+                lat: latitude,
+                lng: longitude
+            };
+
+            var map = new google.maps.Map(document.getElementById('map'), {
+                center: myLatlng,
+                zoom: 14,
+                mapTypeId: 'roadmap',
+                disableDefaultUI: true,
+                zoomControl: true,
+                fullscreenControl: true
+            });
+
+            marker = new google.maps.Marker({
+                map: map,
+                draggable: true,
+                animation: google.maps.Animation.DROP,
+                position: myLatlng
+            });
+
+            // Create the search box and link it to the UI element.
+            var input = document.getElementById('pac-input');
+            var searchBox = new google.maps.places.SearchBox(input);
+
+            // Bias the SearchBox results towards current map's viewport.
+            map.addListener('bounds_changed', function() {
+                searchBox.setBounds(map.getBounds());
+            });
+
+            // Listen for the event fired when the user selects a prediction and retrieve
+            // more details for that place.
+            searchBox.addListener('places_changed', function() {
+                var places = searchBox.getPlaces();
+
+                if (places.length == 0) {
+                    return;
+                }
+
+                // For each place, get the icon, name and location.
+                var bounds = new google.maps.LatLngBounds();
+                places.forEach(function(place) {
+
+                    if (!place.geometry) {
+                        //   console.log("Returned place contains no geometry");
+                        return;
+                    }
+                    var icon = {
+                        url: place.icon,
+                        size: new google.maps.Size(71, 71),
+                        origin: new google.maps.Point(0, 0),
+                        anchor: new google.maps.Point(17, 34),
+                        scaledSize: new google.maps.Size(25, 25)
+                    };
+
+                    marker.setPosition(place.geometry.location);
+
+                    var latitude = place.geometry.location.lat();
+                    document.getElementById("latitude").value = latitude;
+                    var longitude = place.geometry.location.lng();
+                    document.getElementById("longitude").value = longitude;
+                    var formatted_address = place.formatted_address;
+                    document.getElementById("address").value = formatted_address;
+
+                    var search_name = place.name;
+                    document.getElementById("pac-input").value = "at " + search_name;
+                    document.getElementById("pac-input").style.fontWeight = "900";
+
+                    if (place.geometry.viewport) {
+                        // Only geocodes have viewport.
+                        bounds.union(place.geometry.viewport);
+                    } else {
+                        bounds.extend(place.geometry.location);
+                    }
+                });
+                map.fitBounds(bounds);
+            });
+        } catch (error) {
+            //	console.log(error);
+        }
+    }
+
+    $(document).ready(function() {
+        try {
+            initAutocomplete();
+            google.maps.event.addDomListener(window, 'load', initAutocomplete);
+        } catch (error) {
+            console.log(error);
+        }
+    });
+
+    window.addEventListener('keydown', function(e) {
+        if (e.keyIdentifier == 'U+000A' || e.keyIdentifier == 'Enter' || e.keyCode == 13) {
+            if (e.target.nodeName == 'INPUT' && e.target.type == 'text') {
+                e.preventDefault();
+                return false;
+            }
+        }
+    }, true);
+
+    $(document).ready(function() {
+        setTimeout(() => {
+            callAJAX();
+        }, 500);
+
+    });
+    /**
+     *  Dropzone creation
+     */
+    var dropzoneGlobal;
+    $(document).ready(function() {
+        // callAJAX();
+
+        var url = document.getElementById('urldata').value;
+
+        $('div#my-dropzone').dropzone({
+            url: "<?php echo Yii::$app->homeUrl . "posts/createpostimage" ?>",
+            addRemoveLinks: true,
+            maxFiles: 5,
+            autoDiscover: false,
+            autoProcessQueue: false,
+            enqueueForUpload: false,
+            uploadMultiple: true,
+            parallelUploads: 5,
+            clickable: true,
+            maxFilesize: 100,
+
+            success: function(file, response) {
+                var imgName = response;
+                file.previewElement.classList.add("dz-success");
+                //console.log("Successfully uploaded :" + imgName);
+            },
+            error: function(file, response) {
+                alert(response);
+                file.previewElement.classList.add("dz-error");
+            },
+
+            init: function() {
+
+                var myDropzone = this;
+                dropzoneGlobal = this;
+
+                myDropzone.on("addedfile", function(file) {
+
+                    var alreadyadded = document.getElementById('image_add').value;
+                    if (alreadyadded == "") {
+                        $('#image_add').val(file.name);
+                    } else {
+                        $('#image_add').val(alreadyadded + ',' + file.name);
+                    }
+
+                    if (myDropzone.files.length === 6) {
+                        notification_message("You can Select upto 5 Pictures for Venue Profile.", "error");
+                        this.removeFile(file);
+                    }
+
+                    if (this.files.length) {
+                        var _i, _len;
+                        for (_i = 0, _len = this.files.length; _i < _len - 1; _i++) // -1 to exclude current file
+                        {
+                            if (this.files[_i].name === file.name && this.files[_i].size === file.size && this.files[_i].lastModifiedDate.toString() === file.lastModifiedDate.toString()) {
+                                notification_message("Duplicate file.", "error");
+                                this.removeFile(file);
+                            }
+                        }
+                    }
+                });
+
+                myDropzone.on('removedfile', function(file) {
+
+                    if (myDropzone.files.length === 0) {
+                        $('#image_add').val("");
+                    }
+
+                    var alreadyRemove = document.getElementById('deleteImage').value;
+                    var input = $('#deleteImage');
+                    myDropzone.options.maxFiles = myDropzone.options.maxFiles + 1;
+
+                    if (alreadyRemove == "") {
+                        input.val(file.name);
+                    } else {
+                        input.val(alreadyRemove + ',' + file.name);
+                    }
+                });
+
+                myDropzone.on("maxfilesexceeded", function(file) {
+                    this.removeFile(file);
+                });
+
+                var submitButton = document.querySelector("#post_create");
+
+                submitButton.addEventListener("click", function(file) {
+                    if (myDropzone.getQueuedFiles().length > 0) {
+
+                        var submitfiles = false;
+                        if (submitfiles === true) {
+                            submitfiles = false;
+                            return;
+                        }
+
+                        file.preventDefault();
+
+                        var deleted_image_data = document.getElementById('deleteImage').value;
+                        myDropzone.on('sending', function(file, xhr, formData) {
+                            formData.append('deleted_image_data', deleted_image_data);
+                            formData.append('event_id', selectedEvent);
+                            formData.append('event_dp', selectedEventDP);
+                        });
+
+                        myDropzone.processQueue();
+                        myDropzone.on("complete", function() {
+                            submitfiles = true;
+                            $('#post_create').trigger('click');
+                        });
+                    }
+                });
+            }
+        });
+    });
+
+    var get_success_data_success = 0;
+
+    function callAJAX() {
+        $.ajax({
+            url: 'getpostajax',
+            type: 'POST',
+            dataType: 'text',
+            beforeSend: function() {
+                $('#postLoader').css("display", "block");
+                // $("#").show();
+            },
+            complete: function() {
+                $("#postLoader").css("display", "none");
+            },
+            data: {
+                selected_venue_id: $("#selected_venue_id").val(),
+                offset: offset
+            },
+            success: function(data) {
+                posts(data);
+            }
+        });
+    }
+
+    var responseGlobal;
+
+    function posts(data) {
+
+        var response = jQuery.parseJSON(data);
+        responseGlobal = response;
+        if (!response) {
+            setTimeout(() => {
+                get_success_data_success = 1;
+            }, 2000);
+
+            return;
+        }
+        for (count = 0; count <= response.length; count++) {
+
+            var post = response[count];
+            if (!post) continue;
+            var postPic = '';
+            if ('profile_pic' in post.data) postPic = getUserPic(post.data.profile_pic);
+            var postname = post.data.name;
+            var postId = post.data.post_id;
+            var postLike = post.data.like_count;
+            var postMimeType = post.data.mime_type;
+            var postContent = post.data.content;
+            var CreateAt = post.data.created_at;
+            var unique_id = post.data.unique_id;
+            var postCommentCount = post.data.comment_count;
+            var is_post_like = post.post_like.is_liked;
+            var tagged_with = post.data.tagged_with;
+            var is_image_uploaded = post.data.is_image_uploaded;
+            var tag_users = post.data.tagged_users;
+            //console.log(tag_users)
+            var panel = '<div class="col-md-8">';
+            panel += '<div class="panel panel-success rounded shadow">';
+            panel += '<div class="panel-heading no-border">';
+            panel += '<div class="col-md-9 pull-left">';
+            panel += '<div class="media">';
+            panel += '<div class="media-object pull-left">';
+            panel += '<img src="' + postPic + '" class="img-circle" style="width: 35px;height: 35px;"/>';
+            panel += '</div>';
+            panel += '<div class="media-body">';
+            panel += '<z  class="media-heading block mb-0 h4 text-white" style="font-weight:bold;font-size: medium;">' + postname + '' + '<a data-tags = "' + tag_users + '" onclick="showTagUsers(this,123)" style="color:white; cursor:pointer; text-decoration: none; id="tag_link">' + tagged_with + '</a></z>';
+            panel += '<span class="text-white h6">' + CreateAt + ' </span>';
+            panel += '</div>';
+            panel += '</div>';
+            panel += '</div>';
+            panel += '<div class="pull-right">';
+
+            panel += ' <p hidden id="shareId_' + postId + '">https://www.whats42nite.com/production/share?' + unique_id + '</p>';
+            panel += getpostShare(postId);
+            panel += getpostUpdate(postId);
+            panel += getpostDelete(postId);
+            panel += '</div>';
+            panel += '<div class="clearfix"></div>';
+            panel += '</div>';
+            panel += '<div class="panel-body no-padding">';
+            panel += '<div class="panel-body no-padding">';
+
+            if (postMimeType == "1") {
+                panel += '<div>';
+                panel += '<small class="block text-muted" style="color: #000;font-size: larger;margin-bottom: 20px;margin-top: 20px;padding-left: 10px; line-height: 1.8;">' + postContent + '</small>';
+                panel += '</div>';
+            } else {
+                panel += '<div>';
+                panel += '<small class="block text-muted" style="color: #000;font-size: larger;margin-bottom: 20px;margin-top: 20px;padding-left: 10px; line-height: 1.8;">' + postContent + '</small>';
+                panel += '</div>';
+            }
+
+
+            if (postMimeType == '3') {
+                if (is_image_uploaded) {
+                    var latitude = post.data.loc_latitude;
+                    var longitude = post.data.loc_longitude;
+                    if (longitude && latitude) {
+                        var lat_log = "" + latitude + ", " + longitude + "";
+                        var src = "https://maps.googleapis.com/maps/api/staticmap?center=" + lat_log + "&markers=color:red%7C" + lat_log + "&zoom=13&size=555x400&key=AIzaSyCttfuLA9fAAIGgNlsl3AzXU2NWbpmx62E";
+                    }
+                    panel += getPostmap(src);
+                }
+            }
+
+
+            if (postMimeType == '2' || is_image_uploaded == 0) {
+
+                panel += '<div class="blog-item rounded shadow">';
+                panel += '<div id="carousel-blog-post' + postId + '" class="carousel slide" data-ride="carousel">';
+                panel += '<div class="carousel-inner">';
+
+                var media = post.media;
+                var event_name_ = post.data.event_name;
+                var ev = post.data;
+                console.log(post.data.event_name)
+
+                if (media) {
+                    if (media[0].total_media > 1) {
+
+                        var counter = 0;
+                        media.forEach(function(media) {
+
+                            var active = "";
+                            if (counter == 0) {
+                                active = "active";
+                            }
+                            panel += '<div style="text-align:center!important;" class="item ' + active + '">';
+
+                            if (media.media_type == "video") {
+                                panel += getPostVideosthumb(media.media_url);
+                            } else {
+                                panel += getPostImages(media.media_url);
+                            }
+                            panel += '<div class="carousel-caption">';
+                            panel += '' + (counter + 1) + ' of ' + (media.total_media) + '';
+                            panel += '</div></div>';
+                            if(event_name_ != null) {
+                                panel += `
+                                 <div class="carousel-content-event-name text-uppercase">
+                                        <p>`+ event_name_ +`</p>
+                                 </div>`;
+                            }
+                            if(ev.image_count && ev.image_count != "") {
+                                panel += `            
+                                <div class="carousel-content-event-photos">
+                                 <p>`+ ev.image_count +` Photos</p>
+                                 </div>`
+                            }
+                            if(ev.event_fee && ev.event_type == "0") {
+                                panel += `            
+                                <div class="carousel-content-event-photos">
+                                 <p>`+ ev.event_fee +`</p>
+                                 </div>`
+                            }
+                              if(ev.event_date) {
+                                panel += `            
+                                <div class="carousel-content-event-date">
+                                 <p>`+ ev.event_date +`</p>
+                                 </div>`
+                            }
+                            counter++;
+                        });
+                    } else {
+
+                        var counter = 0;
+                        media.forEach(function(media) {
+
+                            var active = "";
+                            if (counter == 0) {
+                                active = "active";
+                            }
+                            panel += '<div class="item ' + active + '">';
+
+                            if (media.media_type == "video") {
+                                panel += getPostVideosthumb(media.media_url);
+                            } else {
+                                panel += getPostImages(media.media_url);
+                            }
+                            panel += '<div>';
+                            panel += '</div></div>';
+                            if(event_name_ != null) {
+                                panel += `
+                                 <div class="carousel-content-event-name text-uppercase">
+                                        <p>`+ event_name_ +`</p>
+                                 </div>
+                                `;
+                            }
+                            if(ev.image_count && ev.image_count != "") {
+                                panel += `            
+                                <div class="carousel-content-event-photos">
+                                 <p>`+ ev.image_count +` Photos</p>
+                                 </div>`
+                            }
+                            if(ev.event_fee && ev.event_type == "0") {
+                                panel += `            
+                                <div class="carousel-content-event-photos">
+                                 <p>`+ ev.event_fee +`</p>
+                                 </div>`
+                            }
+                            if(ev.event_date) {
+                                panel += `            
+                                <div class="carousel-content-event-date">
+                                 <p>`+ ev.event_date +`</p>
+                                 </div>`
+                            }
+                            counter++;
+                        });
+                    }
+                } else {
+                    panel += `
+            		<div class="blog-item rounded shadow"><div id="carousel-blog-post2079" class="carousel slide" data-ride="carousel"><div class="carousel-inner"><div class="item active"><img src="https://livingstonmachinery.com/wp-content/plugins/oem-showcase-inventory/assets/images/noimage-found.png" class="img-responsive" style="width: 100%; height: 300px; object-fit:contain"><div></div></div></div></div></div>`
+                }
+
+                panel += '</div>';
+
+                if (media) {
+                    if (media[0].total_media > 1) {
+                        panel += '<a class="left carousel-control" href="#carousel-blog-post' + postId + '" role="button" data-slide="prev" style="height: 280px;"><span class="fa fa-angle-left"></span></a>';
+                        panel += '<a class="right carousel-control" href="#carousel-blog-post' + postId + '" role="button" data-slide="next"><span class="fa fa-angle-right"></span></a>';
+                    }
+                }
+                panel += '</div></div>';
+            }
+
+            panel += '<div class="inner-all block">';
+
+
+            panel += '<div class="panel-footer" style="padding-top: 0px;padding-bottom: 0px;">';
+            panel += '<div class="inner-all block">';
+
+            panel += getpostLike(postId, postLike, is_post_like);
+            panel += '<i class="fa fa-comment-o fa-2x" style="font-size: medium;margin-left: 5px;"></i> ' + postCommentCount + ' comments';
+            panel += '<i class="fa fa-eye fa-2x" style="font-size: medium;margin-left: 5px;"></i> ' + post.data.view_count + ' reaches';
+            panel += '<i class="fa fa-share-square-o fa-2x" style="font-size: medium;margin-left: 5px;"></i> ' + post.data.share_count + ' shares ';
+            panel += '</div></div>';
+            panel += '<div class="panel-footer"></div>';
+
+            panel += '<div id="comment_counter_text_' + postId + '">';
+            panel += comment_link(postCommentCount, postId);
+            panel += '</div>';
+
+            panel += '</div></div></div>';
+
+            panel += '<div id="postcommentdata_' + postId + '">';
+            if (post.comment) {
+                panel += '<div class="panel-footer no-padding no-border" id="postcomment_' + postId + '">';
+                panel += '<div class="line no-margin"></div>';
+
+                var comments = post.comment;
+
+                comments.forEach(function(comment) {
+                    panel += '<div class="media inner-all no-margin">';
+                    panel += '<div class="pull-left" style="width: 16%">';
+                    panel += '<img src="' + getUserPic(comment.profile_pic) + '" class="img-circle" alt="..." style="width: 50px;height: 50px;"/>';
+                    panel += '</div>';
+                    panel += '<div class="media-body">';
+
+                    if (comment.is_commented == 1) {
+                        var CommentId = "(" + postId + ", " + comment.comment_id + ")";
+                        panel += '<div class="pull-right"><a href="javascript:delete_comment' + CommentId + '" class=" btn-sm" style="margin-left: 5px" title="Delete">Delete</a></div>';
+                    }
+
+                    panel += '<h5 style="font-weight:bold;">' + comment.comment_create_username + '</h5>';
+                    panel += '<median class="block text-muted" style="color: #000;font-size: larger;">' + comment.comment_content + '</median>';
+                    panel += '<em class="text-xs text-muted">Posted on <span  class="text-danger">' + comment.created_at + '</span></em>';
+                    panel += '</div></div>';
+                    panel += '<div class="panel-footer"></div>';
+                });
+            } else {
+                panel += '<div class="line no-margin"></div>';
+            }
+
+            panel += '<form method="post" action="javascript:void(0);" class="form-horizontal inner-all">';
+            panel += '<div class="form-group has-feedback no-margin">';
+            panel += '<input class="form-control" type="text" id="comment_data_' + postId + '" placeholder="Your comment here...">';
+            panel += comment_input(postId);
+            panel += '</div></form></div>';
+            panel += '</div>';
+
+            panel += '</div></div>';
+
+            $('.posts').append(panel);
+            get_success_data_success = 1;
+        }
+    }
+
+    function comment_input(postId) {
+        var post_id = "(" + postId + ", comment_data_" + postId + ")";
+        return '<button onclick="comment_ajax' + post_id + '" id="submit_comment" class="btn btn-comment fa fa-commenting-o form-control-feedback"></button>';
+    }
+
+    function getPostImages(media_url) {
+        return '<img src="' + media_url + '" class="img-responsive" style="width: 100%; height: 300px; object-fit:contain"/>';
+    }
+
+    function getPostVideosthumb(media_url) {
+        var mediaUrlSplit = media_url.split('.');
+        var video_extension = mediaUrlSplit[mediaUrlSplit.length - 1];
+        if (video_extension == '3gp') {
+            return '<center><video loop="loop" preload="auto" controls allowfullscreen="false" style="max-height:300px;width:auto;margin: 0 auto;"><source src="' + media_url + '" type="video/3gpp"/></video></center>';
+        } else if (video_extension == 'avi') {
+            // mediaUrlSplit.splice(mediaUrlSplit.length-1,1);
+            // mediaUrlSplit.push('mp4');
+            // console.log(mediaUrlSplit);
+            // for(var x= 0; x < 20; x++) {
+            // 	var convertedUrl = mediaUrlSplit.join().replaceAll(",", ".");
+            // }
+            return '<center><video loop="loop" preload="auto" controls allowfullscreen="false" style="max-height:300px;width:auto;margin: 0 auto;"><source src="' + media_url + '" type="video/ogg"/></video></center>';
+        } else {
+            return '<center><video loop="loop" preload="auto" controls allowfullscreen="false" style="max-height:300px;width:auto;margin: 0 auto;"><source src="' + media_url + '" type="video/mp4"/></video></center>';
+        }
+
+        //        return '<iframe src="' + media_url + '" style="width: 100%; height: 300px;" allowfullscreen="false"></iframe>';
+    }
+
+    function getpostDelete(postId) {
+        var post_id = "(" + postId + ")";
+        return '<a href="javascript:delete_post' + post_id + '" class="btn btn-danger btn-sm" style="margin-left: 5px" title="Delete"><i class="fa fa-trash fa-lg"></i></a>';
+    }
+
+    function getpostUpdate(postId) {
+        var post_id = encryptNum(postId);
+        return '<a href="post-edit?id=' + post_id + '"  class="btn btn-info btn-sm"  style="margin-left: 5px" title="Edit"><i class="fa fa-pencil fa-lg"></i></a>';
+    }
+
+    // for encrypt data post id
+    function encryptNum($n) {
+        return (((0x0000FFFF & $n) << 16) + ((0xFFFF0000 & $n) >> 16));
+    }
+
+    function getpostShare(postId) {
+        var shareId = "shareId_" + postId + "";
+        return '<a href="javascript:openShareModel(' + shareId + ')" class="btn btn-teal btn-sm" title="Share"><i class="fa fa-share fa-lg"></i></a>';
+    }
+
+    function getpostLike(postId, postLike, is_post_like) {
+        var post_id = "(" + postId + ", postLike_" + postId + ")";
+
+        if (is_post_like === "1") {
+            return '<a href="javascript:postlike_ajax' + post_id + '" id="post_Like_' + postId + '" style="color:#ff0000;"><i class="fa fa-heart fa-2x" id="post_Icon_Like_' + postId + '" style="font-size: medium;"></i> <z id="postLike_' + postId + '">' + postLike + ' </z> likes </a>';
+        } else {
+            return '<a href="javascript:postlike_ajax' + post_id + '" id="post_Like_' + postId + '" style="color:#000;"><i class="fa fa-heart-o fa-2x" id="post_Icon_Like_' + postId + '" style="font-size: medium;"></i> <z id="postLike_' + postId + '">' + postLike + ' </z> likes</a>';
+        }
+    }
+
+    // for copy link of share post
+    function copyToClipboard(element) {
+
+        $('#share_link_model').modal('hide');
+
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val($(element).text()).select();
+        document.execCommand("copy");
+        $temp.remove();
+        notification_message("Link is copied successful.", "success");
+    }
+
+
+    // function for create link if there is more than 2 comments
+    function comment_link(postCommentCount, postId) {
+
+        if (postCommentCount > 2) {
+            var post_id = "(" + postId + ")";
+            return 'view all <a href="javascript:openCommentModel' + post_id + '" id="postCommentCount_' + postId + '">' + postCommentCount + ' comments</a>';
+        } else if (postCommentCount == 0) {
+            return '';
+        } else {
+            return '<z id="postCommentCount_' + postId + '">' + postCommentCount + ' comments</z>';
+        }
+    }
+
+    // model for share id
+    function openShareModel(shareId) {
+        $('#share_link').empty();
+        var text = shareId.textContent;
+        var id = shareId.id;
+        var e = $('<div class="panel-body panel no-padding no-border"><div class="line no-margin"></div><div class="panel-body"><a class="pull-left" href="' + text + '" target="_blank" id="copy_data" style="padding-top: 5px;padding-left: 10px;">' + text + '</a><button id="copy_text" onclick="copyToClipboard(' + id + ');" class="btn btn-teal pull-right">Copy</button></div></div><div class="clearfix"></div>');
+        $('#share_link').append(e);
+        $("#share_link_model").modal('show');
+    }
+
+    // for close the open share model
+    $("#share_cancel").click(function() {
+        $('#share_link_model').modal('hide');
+    });
+
+    //function for show the all comment on the post
+    function openCommentModel(PostId) {
+        $.ajax({
+            type: "POST",
+            url: "<?php echo Yii::$app->homeUrl . "posts/all-comments" ?>",
+            data: {
+                post_id: PostId // < note use of 'this' here
+            },
+            success: function(result) {
+                $('#comment_data').empty();
+                commentModel(result);
+                $('#comment_model').modal('show');
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+            }
+        });
+    }
+
+    // function for set all the data of post in the model
+    function commentModel(result) {
+
+        $('#comment_data').empty();
+        var data = $.parseJSON(result);
+
+        $.each(data, function(index, value) {
+            var comment_content = value.comment_content;
+            var comment_create_username = value.comment_create_username;
+            var created_at = value.created_at;
+            var comment_like_counts = value.comment_like_counts;
+            var profile_pic = value.profile_pic;
+            var e = $('<div class="panel-footer no-padding no-border"><div class="line no-margin"></div><div class="media inner-all no-margin"><div class="pull-left" style="width: 16%"><img src="' + getUserPic(profile_pic) + '" class="img-circle" alt="..." style="width: 50px;height: 50px;"/></div><div class="media-body"><h5 style="font-weight:bold;">' + comment_create_username + '</h5><small class="block text-muted" style="color: #000;font-size: larger;">' + comment_content + '</small><em class="text-xs text-muted">Posted on <span  class="text-danger">' + created_at + '</span></em></div></div>');
+            $('#comment_data').append(e);
+        });
+    }
+
+    // for close the open model
+    $("#comment_cancel").click(function() {
+        $('#comment_model').modal('toggle');
+    });
+
+    function ajax_delete(venueId) {
+        $.ajax({
+            type: "POST",
+            url: "delete",
+            data: {
+                venue_id: venueId // < note use of 'this' here
+            },
+            success: function(result) {
+                notification_message("Venue deleted Successfully.", "success");
+                $('#table').DataTable().ajax.reload();
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+            }
+        });
+    }
+
+    function getPostmap(src) {
+        return '<center><img class="blog-item rounded shadowimg-responsive"  style="max-height:300px;width:auto;margin:0 auto;" src="' + src + '"/></center>'
+    }
+
+    function getUserPic(userPic) {
+        if (userPic != '') {
+            return userPic;
+        }
+        return '<?php echo Yii::$app->homeUrl . "images/user_profile_picture" ?>';
+    }
+
+    function confirm_delete(postId) {
+        $.ajax({
+            type: "POST",
+            url: "post-delete",
+            data: {
+                post_id: postId
+            },
+            success: function(result) {
+                notification_message("Post deleted successfully.", "success");
+                $('.posts').empty();
+                setTimeout(() => {
+                    callAJAX();
+                }, 500);
+
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+            }
+        });
+    }
+
+    // refresh post data on change of venue list
+    $("#selected_venue_id").change(function() {
+        $('.posts').empty();
+        offset = 0;
+        setTimeout(() => {
+            callAJAX();
+        }, 500);
+
+    });
+
+    function delete_post(postId) {
+        ajax_confirmation_method(postId, "Are you sure want to delete this Post?", "Delete Post", "modal-danger modal-center");
+    }
+
+    function ajax_callback(postId) {
+        confirm_delete(postId);
+    }
+
+    function postlike_ajax(postId, postLikeId) {
+        $.ajax({
+            url: "<?php echo Yii::$app->homeUrl . "posts/post-like" ?>",
+            method: 'POST',
+            data: {
+                user_id: <?php echo $user_id ?>,
+                venue_id: $("#active_venue_id").val(),
+                post_id: postId
+            },
+            success: function(data) {
+                var like = JSON.parse(data);
+                postLikeId.innerHTML = like.count;
+                //document.getElementById("post_like").innerHTML = like.all_count;
+                var selectedVenueId = $('#selected_venue_id').val();
+                getPostDataAjax(selectedVenueId);
+
+                var post_Like_ID = "post_Like_" + postId;
+                var post_Icon_Like_ID = "post_Icon_Like_" + postId;
+
+                if (like.is_liked == 1) {
+                    document.getElementById(post_Icon_Like_ID).classList.add('fa-heart');
+                    document.getElementById(post_Icon_Like_ID).classList.remove('fa-heart-o');
+
+                    document.getElementById(post_Like_ID).style.color = "#ff0000";
+
+                    // notification_message('You liked post successfully.', 'success');
+                } else {
+                    document.getElementById(post_Icon_Like_ID).classList.add('fa-heart-o');
+                    document.getElementById(post_Icon_Like_ID).classList.remove('fa-heart');
+
+                    document.getElementById(post_Like_ID).style.color = "#000000";
+
+                    // notification_message('Post dislike successfully.', 'success');
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+            }
+        });
+    }
+
+    document.getElementById("selected_venue_id").onchange = function() {
+        var selectedVenueId = $('#selected_venue_id').val();
+        getPostDataAjax(selectedVenueId);
+    };
+
+    // for get set counter for specific venue
+    function getPostDataAjax(selectedVenueId) {
+        $.ajax({
+            type: "POST",
+            url: "<?php echo Yii::$app->homeUrl . 'posts/getpostdata' ?>",
+            dataType: 'text',
+            data: {
+                venue_id: selectedVenueId
+            },
+            success: function(result) {
+                var data = JSON.parse(result);
+                document.getElementById("posts").innerHTML = data.post_count;
+                document.getElementById("post_like").innerHTML = data.post_like;
+                document.getElementById("post_reach").innerHTML = data.post_reach;
+                document.getElementById("post_share").innerHTML = data.post_share;
+                document.getElementById("totalComments").innerHTML = data.post_comment;
+            }
+        });
+    }
+
+    function delete_comment(postId, comment_id) {
+        ajax_confirmation_method2(postId, comment_id, "Are you sure want to delete this Comment?", "Delete Post", "modal-danger modal-center");
+    }
+
+    function ajax_callback2(postId, comment_id) {
+        confirm_delete_comment(postId, comment_id);
+    }
+
+    function confirm_delete_comment(postId, comment_id) {
+
+        var commentData_div_id = "#postcommentdata_" + postId + "";
+        var commentCount_link_id = "postCommentCount_" + postId + "";
+        var comment_counter_text_id = "#comment_counter_text_" + postId + "";
+
+        $.ajax({
+            url: "<?php echo Yii::$app->homeUrl . "posts/delete-comment" ?>",
+            method: 'POST',
+            data: {
+                comment_id: comment_id,
+                post_id: postId
+            },
+            success: function(data) {
+
+                var result = $.parseJSON(data);
+                var postCommentCount = result[0]['comment_count'];
+
+                var selectedVenueId = $('#selected_venue_id').val();
+                getPostDataAjax(selectedVenueId);
+
+                var html = "";
+                if (postCommentCount > 2) {
+                    var POSTID = "(" + postId + ")";
+                    html = 'view all <a href="javascript:openCommentModel' + POSTID + '" id="postCommentCount_' + postId + '">' + postCommentCount + ' comments</a>';
+                } else if (postCommentCount == 0) {
+                    html = '';
+                } else {
+                    html = '<z id="postCommentCount_' + postId + '">' + postCommentCount + ' comments</z>';
+                }
+
+                $(comment_counter_text_id).empty();
+                $(comment_counter_text_id).append(html);
+
+                document.getElementById(commentCount_link_id).innerHTML = result[0]['comment_count'] + ' comments';
+
+                $(commentData_div_id).empty();
+
+                panel = '<div class="panel-footer no-padding no-border" id="postcomment_' + postId + '">';
+                panel += '<div class="line no-margin"></div>';
+
+                result.forEach(function(comment) {
+                    panel += '<div class="media inner-all no-margin">';
+                    panel += '<div class="pull-left" style="width: 16%">';
+                    panel += '<img src="' + getUserPic(comment.profile_pic) + '" class="img-circle" alt="..." style="width: 50px;height: 50px;"/>';
+                    panel += '</div>';
+                    panel += '<div class="media-body">';
+
+                    if (comment.is_commented == 1) {
+                        var Cid = "(" + postId + ", " + comment.comment_id + ")";
+                        panel += '<div class="pull-right"><a href="javascript:delete_comment' + Cid + '" class=" btn-sm" style="margin-left: 5px" title="Delete">Delete</a></div>';
+                    }
+
+                    panel += '<h5 style="font-weight:bold;">' + comment.comment_create_username + '</h5>';
+                    panel += '<small class="block text-muted" style="color: #000;font-size: larger;">' + comment.comment_content + '</small>';
+                    panel += '<em class="text-xs text-muted">Posted on <span  class="text-danger">' + comment.created_at + '</span></em>';
+                    panel += '</div></div>';
+                });
+
+                panel += '</div>';
+
+                panel += '<div class="line no-margin"></div>';
+                panel += '<form method="post" action="javascript:void(0);" id="comment_create" class="form-horizontal inner-all">';
+                panel += '<div class="form-group has-feedback no-margin">';
+                panel += '<input class="form-control" name="post_id_' + postId + '" type="text" id="comment_data_' + postId + '" placeholder="Your comment here...">';
+                panel += comment_input(postId);
+                panel += '</div></form></div>';
+
+                $(commentData_div_id).append(panel);
+                notification_message("Commented Deleted Successfully.", "success");
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+            }
+        });
+    }
+
+    // after comment remove set value and update with new commented data
+    function comment_ajax(postId, commentId) {
+
+        var commentData_div_id = "#postcommentdata_" + postId + "";
+        var commentCount_link_id = "postCommentCount_" + postId + "";
+        var comment_counter_text_id = "#comment_counter_text_" + postId + "";
+
+        if (commentId.value != "") {
+
+            $.ajax({
+                url: "<?php echo Yii::$app->homeUrl . "posts/create-comment" ?>",
+                method: 'POST',
+                data: {
+                    comment_data: commentId.value,
+                    user_id: <?php echo $user_id ?>,
+                    venue_id: $("#active_venue_id").val(),
+                    post_id: postId
+                },
+                success: function(data) {
+
+                    var result = $.parseJSON(data);
+                    var postCommentCount = result[0]['comment_count'];
+
+                    var selectedVenueId = $('#selected_venue_id').val();
+                    getPostDataAjax(selectedVenueId);
+
+                    var html = "";
+                    if (postCommentCount > 2) {
+                        var POSTID = "(" + postId + ")";
+                        html = 'view all <a href="javascript:openCommentModel' + POSTID + '" id="postCommentCount_' + postId + '">' + postCommentCount + ' comments</a>';
+                    } else if (postCommentCount == 0) {
+                        html = '';
+                    } else {
+                        html = '<z id="postCommentCount_' + postId + '">' + postCommentCount + ' comments</z>';
+                    }
+
+                    $(comment_counter_text_id).empty();
+                    $(comment_counter_text_id).append(html);
+
+                    document.getElementById(commentCount_link_id).innerHTML = result[0]['comment_count'] + ' comments';
+
+                    $(commentData_div_id).empty();
+
+                    panel = '<div class="panel-footer no-padding no-border" id="postcomment_' + postId + '">';
+                    panel += '<div class="line no-margin"></div>';
+
+                    result.forEach(function(comment) {
+                        panel += '<div class="media inner-all no-margin">';
+                        panel += '<div class="pull-left" style="width: 16%">';
+                        panel += '<img src="' + getUserPic(comment.profile_pic) + '" class="img-circle" alt="..." style="width: 50px;height: 50px;"/>';
+                        panel += '</div>';
+                        panel += '<div class="media-body">';
+
+                        if (comment.is_commented == 1) {
+                            var CommentId = "(" + postId + ", " + comment.comment_id + ")";
+                            panel += '<div class="pull-right"><a href="javascript:delete_comment' + CommentId + '" class=" btn-sm" style="margin-left: 5px" title="Delete">Delete</a></div>';
+                        }
+
+                        panel += '<h5 style="font-weight:bold;">' + comment.comment_create_username + '</h5>';
+                        panel += '<small class="block text-muted" style="color: #000;font-size: larger;">' + comment.comment_content + '</small>';
+                        panel += '<em class="text-xs text-muted">Posted on <span  class="text-danger">' + comment.created_at + '</span></em>';
+                        panel += '</div></div>';
+                    });
+
+                    panel += '</div>';
+
+                    panel += '<div class="line no-margin"></div>';
+                    panel += '<form method="post" action="javascript:void(0);" id="comment_create" class="form-horizontal inner-all">';
+                    panel += '<div class="form-group has-feedback no-margin">';
+                    panel += '<input class="form-control" name="post_id_' + postId + '" type="text" id="comment_data_' + postId + '" placeholder="Your comment here...">';
+                    panel += comment_input(postId);
+                    panel += '</div></form></div>';
+
+
+                    $(commentData_div_id).append(panel);
+                    notification_message("Commented successfully.", "success");
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.log(jqXHR);
+                    console.log(textStatus);
+                    console.log(errorThrown);
+                }
+            });
+        }
+    }
+
+    $(window).scroll(function() {
+        if ($(window).scrollTop() == $(document).height() - $(window).height()) {
+            if (get_success_data_success == 1) {
+                get_success_data_success = 0;
+                offset = 5 + offset;
+
+                callAJAX();
+            }
+        }
+    });
+
+
+
+    function showTagUsers(thisObj, post_id) {
+        document.getElementById('tag_data').innerHTML = ""
+        var show = $(thisObj).data("tags");
+        var showSplit = show.split(',')
+        //	console.log(showSplit.length);
+        if (showSplit.length > 1) {
+            document.getElementById('tag_modal_button').click();
+            //tag_data
+            showSplit.forEach(element => {
+                document.getElementById('tag_data').innerHTML += `<li class="list-group-item">` + element + `</li>`
+            })
+
+        }
+
+    }
+    //.dz-filename:hover
+</script>
+
+<script>
+    var input = document.querySelector('#content');
+    var emoButton = document.querySelector('#emoButton')
+    var picker = new EmojiButton({
+        position: 'bottom-end'
+    })
+
+    picker.on('emoji', function(emoji) {
+        input.value += emoji
+    })
+
+    emoButton.addEventListener('click', function() {
+        picker.pickerVisible ? picker.hidePicker() : picker.showPicker(input);
+        // $('#emoButton').prop('disabled', true);
+        var emoClass = document.getElementById("emoButton").classList;
+        emoClass.add('disabled');
+
+        setTimeout(() => {
+            emoClass.remove('disabled');
+        }, 500)
+
+    })
+
+    var eventResponseArray = [];
+    var pastEventResponseArray = [];
+    $(document).ready(function() {
+        getUpcomingEvents();
+        getPastEvents();
+    });
+
+
+    function getUpcomingEvents() {
+        $.ajax({
+            type: "POST",
+            url: "<?php echo Yii::$app->homeUrl . 'posts/getupcomingeventlist?event_type=0' ?>",
+            dataType: 'text',
+            data: {
+                event_type: "0"
+            },
+            success: function(result) {
+                var response = JSON.parse(result);
+                eventResponseArray = [];
+                eventResponseArray = response.data;
+                document.getElementById("eventTagModalBody").innerHTML = "";
+                for (var x = 0; x < response.data.length; x++) {
+                    document.getElementById("eventTagModalBody").innerHTML += `
+            	 <tr>
+            	 <td><input type="checkbox"  value="` + response.data[x].event_id + `"  onclick="onSelectEvent(` + response.data[x].event_id + `, ` + x + `, this)"></td>
+            	 <td>` + response.data[x].event_name + `</td>
+            	 <td>` + response.data[x].event_date + `</td>
+            	 </tr>
+              `;
+                }
+            }
+        });
+    }
+
+    function getPastEvents() {
+        $.ajax({
+            type: "POST",
+            url: "<?php echo Yii::$app->homeUrl . 'posts/getupcomingeventlist?event_type=1' ?>",
+            dataType: 'text',
+            data: {
+                event_type: "1"
+            },
+            success: function(result) {
+                var response = JSON.parse(result)
+//image_count
+                eventResponseArray = [...eventResponseArray, ...response.data];
+                pastEventResponseArray = response.data;
+                console.log(eventResponseArray, ' event array');
+                document.getElementById("pastEventTableBody").innerHTML = "";
+                for (var x = 0; x < eventResponseArray.length; x++) {
+                    if (eventResponseArray[x].event_type == '1') {
+                        document.getElementById("pastEventTableBody").innerHTML += `
+            	 <tr>
+            	 <td><input type="checkbox"  value="` + eventResponseArray[x].event_id + `"  onclick="onSelectEvent(` + eventResponseArray[x].event_id + `, ` + x + `, this)"></td>
+                  <td>` + eventResponseArray[x].event_name + `</td>
+            	 <td>` + eventResponseArray[x].image_count + `</td>
+            	 <td>` + eventResponseArray[x].event_date + `</td>
+            	 </tr>
+              `;
+                    }
+                }
+            }
+        });
+    }
+
+    $('#tagEvent').click(() => {
+        $("#eventTagModalButton").click();
+    });
+
+
+
+    $(document).on('click', 'input[type="checkbox"]', function() {
+        $('input[type="checkbox"]').not(this).prop('checked', false);
+    });
+
+    let selectedEvent = "no";
+    let selectedEventDP = "";
+    let selectEventName = "";
+    let selectedEventMetaId = "";
+    let eventType = "";
+
+    function onSelectEvent(id, index, checkbox) {
+        dropzoneGlobal.removeAllFiles(true);
+        document.getElementById("my-dropzone").innerHTML = "";
+        var sList = "";
+        selectedEvent = "no";
+        selectedEventDP = "";
+        selectedEventDP = eventResponseArray[index].event_dp;
+        selectEventName = "";
+        selectedEventMetaId = "";
+        selectedEventMetaId = eventResponseArray[index].meta_id;
+        eventType = eventResponseArray[index].event_type;
+        //console.log(checkbox)
+        $('input[type=checkbox]').each(function() {
+            if (this != checkbox) {
+                this.checked = false;
+            }
+        })
+
+        checkbox.checked == true ? checkbox.checked = true : checkbox.checked = false;
+
+        $('input[type=checkbox]').each(function() {
+            if (this.checked) {
+                //  console.log($(this).val());
+            }
+            sList += "(" + $(this).val() + "-" + (this.checked ? selectedEvent = $(this).val() : "not checked") + ")";
+            $('#closeEventModal').click();
+        })
+
+        document.getElementById("selected_event_id").value = selectedEvent;
+        document.getElementById("selected_event_dp").value = selectedEventDP;
+        document.getElementById("selected_event_meta_id").value = selectedEventMetaId;
+        document.getElementById("event_type_field").value = eventType;
+        document.getElementById("eventNameOnPanel").innerHTML = "";
+        document.getElementById("content").value = "";
+        var mockFile = {
+            name: selectedEventDP,
+            size: 100000
+        };
+        var myDropzone = $("#my-awesome-dropzone");
+        var splitEventDp = selectedEventDP.split('_');
+        var removePng = splitEventDp[1].split('.');
+        dropzoneGlobal.options.addedfile.call(dropzoneGlobal, mockFile);
+        dropzoneGlobal.options.thumbnail.call(dropzoneGlobal, mockFile, 'https://www.whats42nite.com/productionbackup/images/event/' + removePng[0] + '/' + selectedEventDP);
+        dropzoneGlobal.files.push({
+            name: 'https://www.whats42nite.com/productionbackup/images/event/' + removePng[0] + '/' + selectedEventDP,
+            size: 10000
+        });
+        document.getElementById("image_upload").style.display = "block";
+        //console.log(dropzoneGlobal.files);
+        selectedEvent === "no" ? $("#tag_user_icon").show() : $("#tag_user_icon").hide();
+
+
+        for (var x = 0; x < eventResponseArray.length; x++) {
+            if (eventResponseArray[x].meta_id == selectedEventMetaId) {
+                document.getElementById("eventNameOnPanel").innerHTML = eventResponseArray[x].event_name;
+                document.getElementById("content").value += eventResponseArray[x].event_desc;
+            }
+        }
+          var count = 0;
+                $('input[type=checkbox]').each(function() {
+            if (this.checked) {
+                count++;
+            }
+        })
+        if(count == 0 ) {
+            document.getElementById("eventNameOnPanel").innerHTML = "";
+            document.getElementById("image_upload").style.display = "none";
+             document.getElementById("content").value = "";
+                  $('.dz-remove').each(function() {
+                                   this.click();
+            })
+            
+        }
+    }
+
+    function eventSearch() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("event_typing");
+        filter = input.value.toUpperCase();
+        var value = $('#event_typing').val().toLowerCase();
+        if (upcoming_event) {
+            $("#eventTagModalBody tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        } else {
+            $("#pastEventTableBody tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        }
+    }
+    var upcoming_event = true;
+    var past_event = false;
+
+    function toggleEvent(type) {
+        document.getElementById('event_typing').value = '';
+        // getEventList();
+        if (type == 'upcoming' && upcoming_event) {
+            return
+        }
+        if (type == 'past' && past_event) {
+            return
+        }
+        if (type == 'upcoming') {
+            upcoming_event = true;
+            past_event = false;
+            document.getElementById("event_typing").placeholder = "Search for upcoming event name or date";
+            getUpcomingEvents();
+        } else {
+            upcoming_event = false;
+            past_event = true;
+            getPastEvents();
+           document.getElementById("event_typing").placeholder = "Search for past event name or date";
+        }
+        eventSearch();
+        console.log('upcoming', upcoming_event);
+        console.log('past', past_event)
+    }
+
+
+                    // if (userRole != 'Promoter') {
+                //     document.getElementById("content").value += eventResponseArray[x].event_name + " at " + eventResponseArray[x].venue_name + " on " + eventResponseArray[x].event_date + " \n \n " + eventResponseArray[x].event_desc;
+                //     return;
+                // } else {
+                //     document.getElementById("content").value += eventResponseArray[x].event_name + " at " + eventResponseArray[x].venue_name + " on " + eventResponseArray[x].event_date + " by " + eventResponseArray[x].user_name + " \n \n " + eventResponseArray[x].event_desc;
+                //     return;
+                // }
+                //	console.log($('div#my-dropzone').dropzone())
+</script>
+
+<style>
+    audio,
+    canvas,
+    progress,
+    video {
+        display: inline-block;
+        vertical-align: bottom !important;
+    }
+
+    .dropzone .dz-preview .dz-details .dz-filename,
+    .dropzone-previews .dz-preview .dz-details .dz-filename {
+        overflow: hidden;
+        height: 100%;
+        opacity: 0;
+    }
+
+    .dropzone .dz-preview:hover .dz-details .dz-filename,
+    .dropzone-previews .dz-preview .dz-details .dz-filename {
+        overflow: hidden;
+        height: 100%;
+        opacity: 1;
+    }
+
+ .carousel-content-event-name {
+    position: absolute;
+    bottom: 10%;
+    left: 5%;
+    z-index: 20;
+    color: #6aebbd;
+    font-size: 16px !important;
+    text-shadow: 0 1px 1px #4659527a !important;
+    font-weight: 600;
+}
+
+ .carousel-content-event-photos {
+    position: absolute;
+    bottom: 10%;
+    left: 80%;
+    z-index: 20;
+    color: #6aebbd;
+    font-size: 16px !important;
+    text-shadow: 0 1px 1px #4659527a !important;
+    font-weight: 600;
+}
+
+ .carousel-content-event-date {
+    position: absolute;
+    bottom: 80%;
+    left: 80%;
+    z-index: 20;
+    color: grey;
+    font-size: 15px !important;
+    font-weight: 400;
+}
+</style>
+
+
