@@ -17,6 +17,7 @@ let postContant = ""; // for post content
 let uid2 = ""; //for making a new id and sending a uniq id
 let userArticalId = ""; // For artical id
 let imagesArePoster = false;
+let popUpisOpen = false;
 // for Like //
 let likeID = "";
 let likeCoun = "";
@@ -498,16 +499,26 @@ async function imageToGallry() {
 // this for creating a new post ///////////////////////////////////////////////////////////////////////////
 function main_post() {
   mainPost_text = document.querySelector("#postText").value;
- mainPost_text = EmialValidate(mainPost_text);
+  checkMail = EmialValidate(mainPost_text);
  valueForValid = phoneNumberParser(mainPost_text);
 
   image_s = imageUpload_id;
-if(valueForValid == true){
+  if(checkMail == true){
+    sideFireTost.fire({
+      icon: "warning",
+      title: `Email is Not allowed in post`,
+    });
+    // document.getElementById("#postText").value = "";
+    document.getElementById("#postText").focus();
+  }
+else if(valueForValid == true){
   sideFireTost.fire({
     icon: "warning",
-    title: `This comment does not meet community guidelines`,
+    title: `Phone number is Not allowed post`,
   });
-  document.querySelector("#postText").value =""
+  // document.querySelector("#postText").value =""
+  document.getElementById("#postText").focus();
+
   mainPost_tex ="";
 }
   else if (imagesArePoster == false) {
@@ -670,22 +681,27 @@ async function showCommentFun() {
     url: `https://api.starsgyan.com/StarsGyanAPIQA/api/comment/${apiId}/getlist/${articalId}`,
     beforeSend: function () {},
     success: function (allComent) {
-      // console.log(allComent)
-
+      
+      console.log(allComent)
       for (let c = 0; c < allComent.length; c++) {
-        // console.log(allComent[c])
-          if (apiId !== allComent[c].user_id) {
-            if (allComent[c].is_blessed == 0) {
-              ArticalBlessing = `<div id="tochangetheBlessColor${allComent[c].id}"><img src="./image/Aashirvaad-svg-01-01.png" class="blessingImg ForBlessCommentId${allComent[c].id} " id="blessOrNot${allComent[c].is_blessed}"  onclick="blessMe(this.id,this.className)"></img></div>`;
-            } else if (allComent[c].is_blessed == 1) {
-              ArticalBlessing = `<div id="tochangetheBlessColor${allComent[c].id}"><img src="./image/Dark_Ashirvaad-svg-01-01.png  " class="blessingImg ForBlessCommentId${allComent[c].id}"  id="blessOrNot${allComent[c].is_blessed}" onclick="blessMe(this.id,this.className)"></img></div>`;
-            }
-          } else {
-            ArticalBlessing = "";
-          }
-        
-
-        // console.log(allComent[c]);
+        console.log(allComent[c])
+    
+        if(apiId ==  userArticalId && apiId !== allComent[c].user_id ){
+          if(allComent[c].is_blessed == 0){
+            ArticalBlessing = `<div id="tochangetheBlessColor${allComent[c].id}"><img src="./image/Aashirvaad-svg-01-01.png" class="blessingImg ForBlessCommentId${allComent[c].id} " id="blessOrNot${allComent[c].is_blessed}"  onclick="blessMe(this.id,this.className)"></img></div>`;
+        }else if(allComent[c].is_blessed == 1){
+            ArticalBlessing = `<div id="tochangetheBlessColor${allComent[c].id}"><img src="./image/Dark_Ashirvaad-svg-01-01.png  " class="blessingImg ForBlessCommentId${allComent[c].id}"  id="blessOrNot${allComent[c].is_blessed}" onclick="blessMe(this.id,this.className)"></img></div>`;
+        }
+        }else{
+          if(allComent[c].is_blessed == 0){
+            ArticalBlessing = "" 
+            // `<div id="tochangetheBlessColor${allComent[c].id}"><img src="./image/Aashirvaad-svg-01-01.png" class="blessingImg ForBlessCommentId${allComent[c].id} " id="blessOrNot${allComent[c].is_blessed}"  onclick="blessMe(this.id,this.className)"></img></div>`;
+          }else if(allComent[c].is_blessed == 1){
+            ArticalBlessing = `<div id="tochangetheBlessColor${allComent[c].id}"><img src="./image/Dark_Ashirvaad-svg-01-01.png  " class="blessingImg ForBlessCommentId${allComent[c].id}"  id="blessOrNot${allComent[c].is_blessed}" onclick="blessMe(this.id,this.className)"></img></div>`;
+        }
+        }
+          
+ 
 
         document.querySelector(showComment).innerHTML += document.querySelector(
           showComment
@@ -822,12 +838,16 @@ function openPopUp(myPopId, elmClass) {
   $("#toTop").hide();
   articalId = myPopId;
   showCommentFun();
+  setTimeout(()=>{
+    popUpisOpen = true; 
+  },200)
 }
 function GoBack() {
   $(popUpId).hide();
   $("body").css({ overflow: "auto" });
   document.querySelector(showComment).innerHTML = "";
   $(".BackgroundBlurNow").css({ filter: "blur(0px)" });
+  popUpisOpen = false; 
 }
 function showRFun(showReplyResult) {
   reply_result = functionforBreak(showReplyResult, 10);
@@ -856,7 +876,7 @@ function CommentID(Comment_Id) {
   commentValue = document.getElementById(commentValueId).value;
 
   checkNum = phoneNumberParser(commentValue);
-  commentValue = EmialValidate( commentValue);
+  checkMail = EmialValidate( commentValue);
   // console.log(commentValue)
  
   // let goAhead = "";
@@ -870,9 +890,17 @@ function CommentID(Comment_Id) {
   //     commentOptionShow = true;
   //   }
   // }
-  if (checkNum == true) {
+  if(checkMail == true){
+  sideFireTost.fire({
+    icon: "warning",
+    title: `This comment does not meet community guidelines`,
+  });
+  document.getElementById(commentValueId).value = "";
+  document.getElementById(commentValueId).focus();
+}
+  else if (checkNum == true) {
     sideFireTost.fire({
-      icon: "error",
+      icon: "warning",
       title: `This comment does not meet community guidelines`,
     });
     document.getElementById(commentValueId).value = "";
@@ -916,14 +944,20 @@ function CommentIDPop(Comment_Pop_Id) {
   countComment = `countComment${Comment_Pop_Id}`;
 
   checkNum = phoneNumberParser(commentValue);
-  commentValue = EmialValidate( commentValue);
-
-  if (checkNum == true) {
+  checkMail = EmialValidate( commentValue);
+  if(checkMail == true){
     sideFireTost.fire({
       icon: "error",
-      title: `This comment does not meet community guidelines`,
+      title: `Email is not allowed in comment`,
     });
-    document.getElementById(commentValuePopId).value = "";
+    // document.getElementById(commentValuePopId).value = "";
+    document.getElementById(commentValuePopId).focus();
+  } else if (checkNum == true) {
+    sideFireTost.fire({
+      icon: "warning",
+      title: `Phone number is Not allowed in comment`,
+    });
+    // document.getElementById(commentValuePopId).value = "";
     document.getElementById(commentValuePopId).focus();
   } 
   else if (commentValue == "") {
@@ -987,15 +1021,22 @@ function ReplyFunc(postReplyId) {
   rTextId = `replycommentTextId${PostRId}`;
   TextReplyVal = document.getElementById(rTextId).value;
   showRply = `#comment_repls${PostRId}`;
-  TextReplyVal = EmialValidate(TextReplyVal)
+ checkMail = EmialValidate(TextReplyVal);
   checkNum = phoneNumberParser(TextReplyVal);
-
-  if (checkNum == true) {
+if(checkMail == true){
+  sideFireTost.fire({
+    icon: "worning",
+    title: `Email is not allowed in comment`,
+  });
+  // document.getElementById(rTextId).value = "";
+  document.getElementById(rTextId).focus();
+}
+  else if (checkNum == true) {
     sideFireTost.fire({
-      icon: "error",
-      title: `This comment does not meet community guidelines`,
+      icon: "worning",
+      title: `Phone number is not allowed in comment`,
     });
-    document.getElementById(rTextId).value = "";
+    // document.getElementById(rTextId).value = "";
     document.getElementById(rTextId).focus();
   }else if(TextReplyVal == ""){
     sideFireTost.fire({
@@ -1362,9 +1403,14 @@ function EmialValidate(ElmVal) {
   EmailValidator = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+)/gi;
 if ((ElmVal.match(EmailValidator))) {
   replaceText = ElmVal.match(EmailValidator)
-  replaceText = ElmVal.replace(replaceText,"......@Email")
-  return  replaceText
+  replaceText = ElmVal.replace(replaceText," ")
+  return  true
 } else {
-  return ElmVal
+  return false
+}
+}
+function clickCheck(){
+if(popUpisOpen == true){
+  GoBack()
 }
 }
