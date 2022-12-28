@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="icon" href="../images/favicon.jpeg" sizes="32x32" />
+      <link rel="icon" href="../images/favicon.jpeg" sizes="192x192" />
+      <title>Reels of Starsgyan Astrologers | Online Astrologers Predictions</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+      <link href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined" rel="stylesheet">
+      <link rel="stylesheet" href="./style.css">
+   </head>
+
+   <body>
+      <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#firstModal" >
+      Post Reels
+      </button>
+
+      <button class="social-signin google glow-on-hover btn btn-success" id='login' onclick="login()" data-toggle="tooltip"
+      data-placement="top" title="SignUp for See the Feeds">Log in with Google+</button>
+ 
+      <button class="social-signin google btn btn-danger" id="signOut"  data-toggle="tooltip"
+        data-placement="top" title="logout From Page"> logout</button>
+ 
+      <!-- Modal -->
+      <div class="modal fade" id="firstModal"  tabindex="-1" aria-labelledby="firstModalLabel" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="firstModalLabel">Upload Reels</h1>
+                  <button type="button" class="btn-close" onclick="onCancel()"></button>
+               </div>
+               <div class="modal-body firstPages" style="position: relative;">
+                  <div class="mb-3">
+                     <label for="discText" class="form-label">Video Discription</label>
+                     <textarea class="form-control" id="discText" rows="3" placeholder="Video Discription.........." onkeyup="lengthCheck()" ></textarea>
+                      <div class="lengthChange" >0</div>
+                  </div>
+                  
+                  <input type="file" id="file-input" name="file-input" class="file-input__input" onchange="getFile(event)" accept="video/mp4" style="display: none;">
+                  <label class="file-input__label" for="file-input"><span style="position: absolute;right: 42%;font-size: 20px;font-weight: 700;"> 
+                  <i class="bi bi-file-earmark-play-fill"></i>Attach Reel</span> </label>
+                  
+                    <p id="videoTitle"></p>
+               
+               </div>
+               <div class="modal-body hideMe secondPages">
+                  <div class="row ShowVideo" style="position: relative;"></div>
+               </div>
+               <div class="modal-body  hideMe thirdPages" >
+                  <h3 class="successUploading hideMe" style="color: red;">Reel is Uploading...</h3>
+                  <h3 class="successUpload hideMe" style="color: green;">Reel Uploaded successfuly</h3>
+                  <div class="progress" style="margin-top: 10px;">
+                     <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 0%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">0%</div>
+                  </div>
+               </div>
+               <div class="modal-footer  FourPage">
+                  <button type="button" class="btn btn-secondary hideMe backBtn" onclick="onGoBack()"><i class="bi bi-chevron-double-left"></i>Go Back</button>
+                  <button class="btn btn-primary nextBtn" onclick="onNextClick()">Next <i class="bi bi-chevron-double-right"></i></button>
+                  <button type="button" class="btn btn-success hideMe uploadBtn" onclick="onUpload()"><i class="bi bi-cloud-upload-fill"></i> Upload</button>
+                  <div onclick="uploadData()" id="uploadDatas"></div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Modal Ends-->
+      <section>
+         <div class="container align-items-center showAllreels">
+            <div class="row ">
+            </div>
+         </div>
+      </section>
+      
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase.js"></script>
+
+      <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+      <script src="./firebase.js"></script>
+      <script type="module" src="./script.js"></script>
+
+      <script type="module">
+        
+
+      </script>
+      <script id="forMuteAndUnmute">
+
+      </script>
+   </body>
+</html>
