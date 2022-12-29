@@ -40,11 +40,12 @@ const firebaseConfig = {
     if(lengthIsOk == true){
       try {
         let url =  URL.createObjectURL(fileItem)
-        ShowVideo.innerHTML = `<video autoplay muted loop style="width: 50%;margin: 0% 25%;" >
+        ShowVideo.innerHTML = `<video autoplay  loop style="width: 50%;margin: 0% 25%;" id="prvId" onclick="toggleMute()">
         <source src="${url}" type="video/mp4">
      </video>
      <div class="videoDisc" >
     <p>${textDesc.value}</p></div>`
+
         $(".firstPages").hide()
         $(".secondPages").show()
         $(".backBtn").show()
@@ -116,11 +117,11 @@ new bootstrap.Modal('#firstModal', {
         if(url != ""){
             localStorage.setItem("URL",url);
             document.querySelector("#uploadDatas").click()
-              showVideoCon.innerHTML += showVideoCon.innerHTML =`<div class="row ">
-            <video autoplay loop controls style="width: 30%;margin: 0% 35%;">
-                   <source src="${url}" type="video/mp4">
-                </video>
-            </div>`
+            //   showVideoCon.innerHTML += showVideoCon.innerHTML =`<div class="row ">
+            // <video autoplay loop muted style="width: 30%;margin: 0% 35%;">
+            //        <source src="${url}" type="video/mp4">
+            //     </video>
+            // </div>`
 
           }
           
@@ -140,11 +141,11 @@ function lengthCheck(){
 
   }
 }
-// var video = document.getElementById('video');
+var video2 = document.querySelector('#prvId');
 
-// function toggleMute(){
-//   video.muted = !video.muted;
-// }
+$("video").click(function () {
+  $(this).prop("muted", !$(this).prop("muted"));
+});
 
 // function selectAllData(){
 //   firebase.database().ref('Astro').once('value',(e)=>{
@@ -152,3 +153,11 @@ function lengthCheck(){
 //   })
 // }
 // selectAllData()
+function selectAllData(){
+
+  console.log(localStorage.getItem("logData"))
+}
+selectAllData()
+ function GoBackKnow(){
+  window.location.href = "../feeds";
+}

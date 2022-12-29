@@ -135,6 +135,7 @@
 
   <!-- wrappers for visual page editor and boxed version of template -->
   <div id="canvas"  onclick="clickCheck()">
+
     <div id="box_wrapper">
       <!-- template sections -->
       <div class="header_absolute cover-background s-overlay">
@@ -143,12 +144,11 @@
           <div class="container">
             <div class="row align-items-center">
               <div class="col-xl-6 col-lg-4 col-md-4 text-lg-left text-center">
-                <a href="index.html" rel="home" class="logo logo_image_and_text">
+                <!-- <a href="index.html" rel="home" class="logo logo_image_and_text"> -->
                   <img src="../starsgyan_logo.svg" alt="" class="img-fluid">
                 </a>
               </div>
-              <div
-                class="col-xl-6 col-lg-8 col-md-8 some-links text-center text-lg-right d-flex justify-content-center justify-content-md-end align-items-center mt-2 mt-md-0">
+              <div class="col-xl-6 col-lg-8 col-md-8 some-links text-center text-lg-right d-flex justify-content-center justify-content-md-end align-items-center mt-2 mt-md-0">
                 <a href="https://play.google.com/store/apps/details?id=in.praxivlabs.app.starsgyan" target="blank"
                   class="d-none d-md-block btn btn-outline-maincolor btn-medium ">
                   <span><i class="fa fa-android"></i> Download App</span>
@@ -156,6 +156,7 @@
                 <button class="social-signin google" id="signOut"
                   style="margin-left: 18px;margin-top: -2px;font-size:19px;display: none;" data-toggle="tooltip"
                   data-placement="top" title="logout From Page"> logout</button>
+                  <button  class="social-signin hideMe reelsAdd " onclick="changeIt()" style="display:none;margin-left: 11px;margin-top: -5px;color: #fcf9f9;background: indigo;">Show Reels</button>
               </div>
             </div>
           </div>
@@ -180,7 +181,7 @@
 
                 <h1>Feeds</h1>
                 <ol class="breadcrumb">
-                  <li class="breadcrumb-item first-item"><a href="../index.html">Home</a></li>
+                  <li class="breadcrumb-item first-item"><a href="../../starsGyan-for-testing">Home</a></li>
                   <li class="breadcrumb-item first-item text-white">Feeds</li>
                 </ol>
                 <!-- <button class="social-signin google" id='login' style="margin-left: -27px;margin-top: 10px;" data-toggle="tooltip" data-placement="top" title="SignUp for See the Feeds">Log in with
@@ -351,12 +352,14 @@
 
       // Your web app's Firebase configuration
       const firebaseConfig = {
-        apiKey: "AIzaSyAMDhd_ITXBZb3G87K90mAg4eXXWRiHeH8",
-        authDomain: "nd-project-a7e15.firebaseapp.com",
-        projectId: "nd-project-a7e15",
-        storageBucket: "nd-project-a7e15.appspot.com",
-        messagingSenderId: "942528200657",
-        appId: "1:942528200657:web:68cdaf9fb89b451635aaf0"
+        apiKey: "AIzaSyApcFNQvrjBjXbAcdI96u5V1xIG8g70wPA",
+    authDomain: "starsgyandev.firebaseapp.com",
+    databaseURL: "https://starsgyandev-default-rtdb.firebaseio.com",
+    projectId: "starsgyandev",
+    storageBucket: "starsgyandev.appspot.com",
+    messagingSenderId: "492865356732",
+    appId: "1:492865356732:web:91770e95b251a3a4e0e1b9",
+    measurementId: "G-FCX2B4NXST"
       };
 
       // Initialize Firebase
@@ -398,6 +401,7 @@
           $("#feedsPagehide").slideDown(2000);
           $("#login").hide();
           $("#signOut").show();
+          $(".reelsAdd").show()
           myProPic = dataArray.profilePic;
           document.querySelector(".proImg").innerHTML = `<img src="${dataArray.profilePic}" class="imagePro">`;
           document.querySelector(".profName").innerHTML = `${dataArray.profileName}`;
@@ -454,6 +458,8 @@
                 $(".mainHideShow").hide()
                 $(".mainHideShow1").fadeIn(200)
                 $('.hideFoot').hide()
+                $(".reelsAdd").show()
+
               })
 
               .catch((error) => {
@@ -507,14 +513,17 @@
             $("#feedsPagehide").hide()
             $("#login").show();
             $("#signOut").hide();
+            $(".reelsAdd").hide()
+            $('.hideFoot').show()
             document.getElementById("contentAria").innerHTML = "";
             apiId = "";
             page = 0;
             youAreLogedIn = false;
-            $('.hideFoot').show()
-            setTimeout(() => {
-              location.assign("../index.html");
-            }, 2000);
+            // setTimeout(() => {
+              location.assign("../../starsGyan-for-testing");
+            // }, 2000);
+            
+
           })
           .catch((error) => {
             // An error happened.
@@ -534,7 +543,6 @@
 
         // console.log(request)
         $.ajax({
-
           url: "https://api.starsgyan.com/StarsGyanAPIQA/api/user/login",
           type: "POST",
           contentType: "userLogin/json",
@@ -571,6 +579,14 @@
       //           interval: false
 
       //         })
+
+    </script>
+
+
+    <script>
+      function changeIt(){
+          window.location.href = "../StarReels";
+      }
     </script>
 
     <script id="allSliderCall"></script>

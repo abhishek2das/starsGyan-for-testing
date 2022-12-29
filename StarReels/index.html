@@ -13,17 +13,44 @@
       <link rel="stylesheet" href="./style.css">
    </head>
 
-   <body>
-      <!-- Button trigger modal -->
-      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#firstModal" >
-      Post Reels
-      </button>
+   <body style="background-color: black;">
+      <div style="text-align: center;margin-top: 30px;position: relative;">
+         <img src="./image/giphy.gif" alt="">
+         <button type="button" class="postReels" data-bs-toggle="modal" data-bs-target="#firstModal" style="position: absolute;right: 36%;top: 42%;background: none;border: none;font-weight: 700;font-size: 46px;color: white">
+            <span class="letter">P </span>
+            <span class="letter">o</span>
+            <span class="letter">s</span>
+            <span class="letter">t</span>
+            <span class="letter">R</span>
+            <span class="letter">e</span>
+            <span class="letter">e</span>
+            <span class="letter">l</span>
 
-      <button class="social-signin google glow-on-hover btn btn-success" id='login' onclick="login()" data-toggle="tooltip"
-      data-placement="top" title="SignUp for See the Feeds">Log in with Google+</button>
- 
-      <button class="social-signin google btn btn-danger" id="signOut"  data-toggle="tooltip"
-        data-placement="top" title="logout From Page"> logout</button>
+            <!-- <span>Post Reels</span>  -->
+         </button>
+         <button  class="GoBackKnow" onclick="GoBackKnow()" style="position: absolute;right: 3%;top: -2%;background: none;border: none;font-weight: 700;font-size: 26px;color: white">
+            <i class="bi bi-arrow-left"></i>Go Back
+         </button>
+      </div>
+
+      <div class="hideMe afterLog">
+         <div class="row">
+            <div class="col-md-2">
+             
+            </div>
+            <!-- <div class="col-md-2">
+               <button class="social-signin google btn btn-danger" id="signOut"  data-toggle="tooltip"
+                 data-placement="top" title="logout From Page"> logout</button>
+            </div> -->
+         </div>
+
+      </div>
+
+     <!-- Button trigger modal -->
+<!-- 
+      <button class="social-signin google glow-on-hover btn btn-success" id='login'  data-toggle="tooltip"
+      data-placement="top" title="SignUp for See the Feeds">Log in with Google+</button> -->
+      
  
       <!-- Modal -->
       <div class="modal fade" id="firstModal"  tabindex="-1" aria-labelledby="firstModalLabel" aria-hidden="true">
@@ -86,7 +113,200 @@
 
       <script type="module">
         
+ import { getAuth, 
+   GoogleAuthProvider, 
+   signInWithRedirect, 
+   getRedirectResult, 
+   signInWithPopup, 
+   signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+ import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js';
+ import { getFirestore, collection, getDocs,addDoc,setDoc ,doc,getDoc } from 'https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js';
 
+  var textDesc = document.querySelector("#discText");
+  var progress_bar = document.querySelector(".progress-bar");
+  var fileText = document.querySelector("#file-input");
+  var ShowVideo = document.querySelector(".ShowVideo");
+  var videoTitle = document.querySelector("#videoTitle");
+  var showVideoCon = document.querySelector(".showAllreels");
+  var lengthChange = document.querySelector(".lengthChange");
+  var afterLog = document.querySelector(".afterLog")
+  var GoogleUid = ""
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyApcFNQvrjBjXbAcdI96u5V1xIG8g70wPA",
+    authDomain: "starsgyandev.firebaseapp.com",
+    databaseURL: "https://starsgyandev-default-rtdb.firebaseio.com",
+    projectId: "starsgyandev",
+    storageBucket: "starsgyandev.appspot.com",
+    messagingSenderId: "492865356732",
+    appId: "1:492865356732:web:91770e95b251a3a4e0e1b9",
+    measurementId: "G-FCX2B4NXST"
+    };
+
+
+   const app = initializeApp(firebaseConfig);
+   const db = getFirestore(app);
+   const auth = getAuth(app);
+   const provider = new GoogleAuthProvider(app);
+  
+   const allLocalData = JSON.parse(localStorage.getItem("logData"))
+   const userId = allLocalData.UserId
+   console.log(userId)
+   firebase.app
+     window.uploadData = function(){sendDataToDb()}
+     getUsersData()
+   //   sendDataToDb()
+     async function sendDataToDb(){
+
+       try {
+        $(".successUploading").hide();
+        
+         const UsrRef = doc(db, "Astro",userId);
+         await addDoc(collection(UsrRef,"data"), {
+             userName:allLocalData.profileName,
+             user:userId,
+             link:localStorage.getItem("URL"),
+             video_desc:textDesc.value,
+             likeCount:"0"
+           });
+
+           await setDoc(doc(db, "Astro", userId), {
+           "Uid": userId,})
+           $(".successUpload").show()
+
+           finalSet()
+           
+     } catch (e) {console.log(e)} 
+     }
+ 
+     function finalSet(){
+       $(".successUpload").hide()
+       $('.modal').modal('hide');
+       $(".secondPages").hide()
+       $(".thirdPages").hide()
+       $(".firstPages").show()
+       $(".FourPage ").show() 
+       $(".uploadBtn").hide()
+       $(".backBtn").hide()
+       $(".nextBtn").show()
+       progress_bar.style.width = 0;
+       progress_bar.innerHTML = ""
+       ShowVideo.innerHTML ="";
+       videoTitle.innerHTML="";
+       fileText.value = "";
+       textDesc.value = "";
+       localStorage.removeItem("URL");
+       lengthChange.innerHTML = 0;
+      }
+      
+      
+       async function getUsersData() {
+       const userDataDoc =  doc(db, 'Astro',"l6HfhbgGCSbgwt9yfVmq0Zooepx2");
+       const userCol =  collection(userDataDoc,"data");
+       const userSnapshot = await getDocs(userCol);
+       const userList = userSnapshot.docs.map(doc=>doc.data())
+        
+       userList.forEach(e => {
+          
+          showVideoCon.innerHTML += showVideoCon.innerHTML = `<div class="row ">
+          <video autoplay loop muted style="width: 30%;margin: 0% 35%;">
+           <source src="${e.link}" type="video/mp4">
+           </video>
+          </div>`
+         });
+
+       }
+
+      
+       
+     async function getDocsNow(){
+       // const userDataDoc =  collection(db, 'Astro');
+       // const userSnapshot = await getDocs(userDataDoc);
+       // // const userList = userSnapshot.docs.map(doc=>doc.data())
+       // console.log(userSnapshot.length)
+       // userSnapshot.forEach((doc)=>{
+       // console.log("qwertyu"+doc.id, " => ", doc.data());
+       // });
+       
+
+     
+       var leadsRef = firebase.database;
+      
+      }
+    //   getDocsNow()
+
+    
+   //  $("#login").click(() => {
+   //    // sign in with popup tab
+
+   //    const logIn = signInWithPopup(auth, provider)
+
+   //      .then((result) => {
+   //        // This gives you a Google Access Token. You can use it to access the Google API.
+   //        const credential = GoogleAuthProvider.credentialFromResult(result);
+   //        const token = credential.accessToken;
+   //        $(".afterLog").show()
+   //        $("#login").hide()
+   //    $("#signOut").show();
+
+   //        GoogleUid=result.user.uid
+   //        console.log(result.user.uid)
+   //        let LogInData = {
+   //          "Email": eMail,
+   //          "profileName": pName,
+   //          "unicTokken": uTokken,
+   //          "profilePic": pPic,
+   //          "UserId": fId,
+   //          "dId": dId,
+   //          "profileName": myproName
+   //        }
+   //        localStorage.setItem("logData", JSON.stringify(LogInData));
+   //        localStorage.setItem("OnceLogIn", true)
+
+   //      })
+
+   //      .catch((error) => {
+   //        // Handle Errors here.
+   //        const errorCode = error.code;
+   //        const errorMessage = error.message;
+   //        // The email of the user's account used.
+   //        const email = error.email;
+   //        // The AuthCredential type that was used.
+   //        const credential = GoogleAuthProvider.credentialFromError(error);
+   //        // ...
+
+
+   //      });
+   //  });
+
+   //  $("#signOut").click(() => {
+   //      signOut(auth)
+   //        .then(() => {
+   //          // alert('Sign-out successful.')
+
+   //          localStorage.removeItem("apiId");
+
+   //          localStorage.setItem("OnceLogIn", false)
+            
+   //          $("#signOut").hide();
+   //          $(".afterLog").hide()
+   //          $("#login").show()
+   //          GoogleUid =""
+   //        })
+   //        .catch((error) => {
+   //          // An error happened.
+   //        });
+   //    });
+
+
+       const log = localStorage.getItem("OnceLogIn")
+      if(log =="true"){
+         $(".afterLog").show()
+          $("#login").hide()
+        $("#signOut").show();
+      }
+
+ 
       </script>
       <script id="forMuteAndUnmute">
 

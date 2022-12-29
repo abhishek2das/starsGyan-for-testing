@@ -49,3 +49,46 @@
   top: 24px;;
  color: #130202bf;
 }
+
+.GoBackKnow{
+  position: absolute;
+  right: 3%;
+  top: -2%;
+  background: none;
+  border: none;
+  font-weight: 700;
+  font-size: 26px;
+  color: white
+}
+.firstModalCss:hover{
+
+}
+.GoBackKnow :hover{
+  margin-right: 10px;
+
+}
+.GoBackKnow{
+  position: absolute;right: 3%;top: -2%;background: none;border: none;font-weight: 700;font-size: 26px;color: white
+}
+/* .postReels:hover>span{
+  letter-spacing: 2px;
+
+
+} */
+
+.letter {
+  font-family: inherit;
+  font-size: 64px;
+  font-weight: bolder;
+  text-shadow: 0.03em 0.03em 0.02em #777;
+  will-change: transform;
+  cursor: default;
+  
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+/* This is all we need :D */
+.letter:hover {
+  transform: scaleX(0.8) scaleY(1.2);
+}
